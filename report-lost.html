@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Lost Item - TransitFind</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <span>Transit</span>Find
+    </div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="report-lost.html" class="active">Report Lost</a>
+        <a href="report-found.html">Report Found</a>
+        <a href="search.html">Search</a>
+    </nav>
+</header>
+
+<main class="page-container">
+    <div class="page-title">
+        <p class="section-tag">REPORT</p>
+        <h1>Report a Lost Item</h1>
+        <p>Give us as much information as possible to help find your item.</p>
+    </div>
+
+    <div id="lostAlert" class="alert"></div>
+
+    <form id="lostItemForm" class="form-card">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Item Name *</label>
+                <input type="text" id="itemName" placeholder="e.g. Black Backpack" required>
+            </div>
+
+            <div class="form-group">
+                <label>Category *</label>
+                <select id="category" required>
+                    <option value="">Select category</option>
+                    <option>Bag</option>
+                    <option>Electronics</option>
+                    <option>Wallet</option>
+                    <option>Documents</option>
+                    <option>Clothing</option>
+                    <option>Keys</option>
+                    <option>Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Color</label>
+                <input type="text" id="color" placeholder="e.g. Black">
+            </div>
+
+            <div class="form-group">
+                <label>Date Lost *</label>
+                <input type="date" id="dateLost" required>
+            </div>
+
+            <div class="form-group">
+                <label>Time Lost *</label>
+                <input type="time" id="timeLost" required>
+            </div>
+
+            <div class="form-group">
+                <label>Transport Type *</label>
+                <select id="transportType" required>
+                    <option value="">Select transport</option>
+                    <option>Bus</option>
+                    <option>Train</option>
+                    <option>Metro</option>
+                    <option>Station</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Bus / Train Number</label>
+                <input type="text" id="vehicleNumber" placeholder="e.g. Bus 24">
+            </div>
+
+            <div class="form-group full">
+                <label>Location / Station Stop</label>
+                <input type="text" id="location" placeholder="Where did you last see the item?">
+            </div>
+
+            <div class="form-group full">
+                <label>Description *</label>
+                <textarea id="description" placeholder="Describe the item, unique marks, contents, etc." required></textarea>
+            </div>
+
+            <div class="form-group full">
+                <label>Upload Image</label>
+                <input type="file" id="image" accept="image/*">
+            </div>
+        </div>
+
+        <div class="form-submit">
+            <button type="submit" class="btn primary">Submit Lost Item</button>
+        </div>
+    </form>
+</main>
+
+<script src="js/items.js"></script>
+
+</body>
+</html>

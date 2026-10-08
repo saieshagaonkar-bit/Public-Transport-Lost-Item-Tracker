@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Items - TransitFind</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <span>Transit</span>Find
+    </div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="report-lost.html">Report Lost</a>
+        <a href="report-found.html">Report Found</a>
+        <a href="search.html" class="active">Search</a>
+        <a href="login.html" class="login-btn">Login</a>
+    </nav>
+</header>
+
+<main class="page-container">
+    <div class="page-title">
+        <p class="section-tag">FIND YOUR ITEM</p>
+        <h1>Search Lost & Found Items</h1>
+        <p>Search reported items using categories and transport filters.</p>
+    </div>
+
+    <div class="search-box">
+        <form id="searchForm">
+            <div class="search-grid">
+                <input type="text" id="searchKeyword" placeholder="Search item by keyword...">
+
+                <select id="searchCategory">
+                    <option value="">Category</option>
+                    <option>Bag</option>
+                    <option>Electronics</option>
+                    <option>Wallet</option>
+                    <option>Documents</option>
+                    <option>Clothing</option>
+                    <option>Keys</option>
+                </select>
+
+                <select id="searchTransport">
+                    <option value="">Transport</option>
+                    <option>Bus</option>
+                    <option>Train</option>
+                    <option>Metro</option>
+                    <option>Station</option>
+                </select>
+
+                <button type="submit" class="btn primary">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="searchResults" class="item-grid">
+        <!-- Demo Item 1 -->
+        <div class="item-card">
+            <div class="item-image">🎒</div>
+            <div class="item-content">
+                <h3>Black Backpack</h3>
+                <p>📍 Panjim Bus Stand</p>
+                <p>🚌 Bus 24</p>
+                <p>📅 25 Sept 2026 • 14:30 IST</p>
+                <span class="status found">Found</span>
+                <br><br>
+                <a href="item-details.html" class="btn primary">View Details</a>
+            </div>
+        </div>
+
+        <!-- Demo Item 2 -->
+        <div class="item-card">
+            <div class="item-image">📱</div>
+            <div class="item-content">
+                <h3>iPhone 13</h3>
+                <p>📍 Margao Railway Station</p>
+                <p>🚆 Express Train</p>
+                <p>📅 23 Sept 2026 • 09:15 IST</p>
+                <span class="status lost">Lost</span>
+                <br><br>
+                <a href="item-details.html" class="btn primary">View Details</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="js/main.js"></script>
+<script src="js/items.js"></script>
+
+</body>
+</html>
