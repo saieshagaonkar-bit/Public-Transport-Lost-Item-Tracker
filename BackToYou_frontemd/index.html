@@ -20,22 +20,6 @@
 
     <!-- Announcement & System Bar -->
     <header class="top-nav-wrapper">
-        <div class="utility-bar">
-            <div class="container utility-content">
-                <div class="utility-left">
-                    <span class="live-pulse-badge"><span class="pulse-dot"></span> Live Transit System Feed</span>
-                    <span class="sep-dot">•</span>
-                    <span class="utility-note"><strong id="stat-active-today">48</strong> active recoveries underway across 14 transit corridors</span>
-                </div>
-                <div class="utility-right">
-                    <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark/light contrast mode" title="Toggle Aesthetic Contrast">
-                        <svg class="sun-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>
-                        <span class="theme-label">Theme Mood</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <!-- Main Navigation Bar -->
         <nav class="main-navbar">
             <div class="container nav-container">
@@ -63,6 +47,7 @@
 
                     <div class="user-auth-nav-pill" id="user-auth-pill" style="display: none;">
                         <span class="user-avatar-dot"></span>
+                        <span class="avatar-initials avatar-xs" id="nav-avatar" style="display: none;" aria-hidden="true"></span>
                         <span id="user-nav-label">Sarah Jenkins (Passenger)</span>
                     </div>
 
@@ -127,14 +112,20 @@
 
                         <div class="login-card-title-group">
                             <h3 id="login-heading">Passenger Login</h3>
-                            <p id="login-subheading">Welcome! Sign in to view matches, register reports, and track custody handovers.</p>
+                            <p id="login-subheading" hidden></p>
                         </div>
 
-                        <form id="form-login-view">
+                        <!-- Passenger only: Log In and Sign Up are separate screens -->
+                        <div class="auth-mode-switch" id="passenger-auth-switch" role="tablist" aria-label="Passenger account">
+                            <button type="button" class="auth-mode-btn active" role="tab" aria-selected="true" data-auth-mode="login">Log In</button>
+                            <button type="button" class="auth-mode-btn" role="tab" aria-selected="false" data-auth-mode="signup">Sign Up</button>
+                        </div>
+
+                        <form id="form-login-view" novalidate>
                             <input type="hidden" id="login-active-role" value="passenger" />
                             <div class="form-group-custom">
                                 <label for="login-view-email" id="login-email-label">Passenger Email / Transit ID</label>
-                                <input type="text" id="login-view-email" placeholder="passenger@metro.org" value="sarah.jenkins@metrotransit.org" required />
+                                <input type="text" id="login-view-email" type="email" placeholder="passenger@metro.org" value="sarah.jenkins@metrotransit.org" required />
                             </div>
 
                             <div class="form-group-custom">
@@ -154,10 +145,65 @@
                                 </div>
                             </div>
 
+                            <p class="form-error-banner" id="login-error" role="alert" hidden></p>
+
                             <button type="submit" class="btn btn-primary-mustard btn-block btn-lg" id="btn-login-view-submit" style="margin-top: 24px;">
                                 <span id="btn-login-text">Sign In as Passenger</span>
                                 <span>→</span>
                             </button>
+
+                            <p class="auth-alt-link" id="login-to-signup-wrap">
+                                New passenger? <a href="#" id="link-to-signup">Create an account</a>
+                            </p>
+                        </form>
+
+                        <!-- Passenger Sign Up -->
+                        <form id="form-signup-view" novalidate hidden>
+                            <div class="form-group-custom">
+                                <label for="signup-name">Full Name <span class="required-star">*</span></label>
+                                <input type="text" id="signup-name" placeholder="Your full name" maxlength="60" autocomplete="name" />
+                                <span class="input-error-msg" id="err-signup-name">Please enter your name</span>
+                            </div>
+
+                            <div class="form-group-custom">
+                                <label for="signup-email">Email <span class="required-star">*</span></label>
+                                <input type="email" id="signup-email" placeholder="you@email.com" autocomplete="email" />
+                                <span class="input-error-msg" id="err-signup-email">Enter a valid email address</span>
+                            </div>
+
+                            <div class="form-group-custom">
+                                <label for="signup-phone">Phone Number</label>
+                                <input type="tel" id="signup-phone" placeholder="e.g. +91 98765 43210" maxlength="20" autocomplete="tel" />
+                                <span class="input-error-msg" id="err-signup-phone">Enter a valid phone number (7–15 digits)</span>
+                            </div>
+
+                            <div class="form-group-custom">
+                                <label for="signup-password">Password <span class="required-star">*</span></label>
+                                <div class="input-with-action">
+                                    <input type="password" id="signup-password" placeholder="At least 8 characters" autocomplete="new-password" />
+                                    <button type="button" class="btn-toggle-pwd" data-toggle-target="signup-password" aria-label="Show password" title="Show / hide password">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </button>
+                                </div>
+                                <span class="input-error-msg" id="err-signup-password">Use at least 8 characters</span>
+                            </div>
+
+                            <div class="form-group-custom">
+                                <label for="signup-confirm">Confirm Password <span class="required-star">*</span></label>
+                                <input type="password" id="signup-confirm" placeholder="Re-enter your password" autocomplete="new-password" />
+                                <span class="input-error-msg" id="err-signup-confirm">Passwords do not match</span>
+                            </div>
+
+                            <p class="form-error-banner" id="signup-error" role="alert" hidden></p>
+
+                            <button type="submit" class="btn btn-primary-mustard btn-block btn-lg" style="margin-top: 24px;">
+                                <span>Create Account</span>
+                                <span>→</span>
+                            </button>
+
+                            <p class="auth-alt-link">
+                                Already have an account? <a href="#" id="link-to-login">Log in</a>
+                            </p>
                         </form>
                     </div>
 
@@ -424,6 +470,12 @@
                         </div>
                     </div>
 
+                    <!-- Found / Lost switch -->
+                    <div class="feed-type-switch" id="home-feed-switch" role="tablist" aria-label="Show found or lost items">
+                        <button type="button" class="feed-type-btn active" role="tab" aria-selected="true" data-feed-type="Found">Found Items</button>
+                        <button type="button" class="feed-type-btn" role="tab" aria-selected="false" data-feed-type="Lost">Lost Items</button>
+                    </div>
+
                     <!-- Items Grid container -->
                     <div class="items-grid" id="home-recent-items-grid">
                         <!-- Dynamically populated -->
@@ -564,9 +616,8 @@
                             <span class="filter-section-title">Item Status</span>
                             <select id="filter-status-select" class="form-select-styled">
                                 <option value="all">All Statuses</option>
-                                <option value="Open">Open (Active)</option>
                                 <option value="Possible Match">Possible Match</option>
-                                <option value="Claim Pending">Claim Under Review</option>
+                                <option value="Claim Pending">Claim Pending</option>
                                 <option value="Recovered">Recovered / Reunited</option>
                             </select>
                         </div>
@@ -790,8 +841,8 @@
                                 </div>
                             </div>
 
-                            <div class="form-grid-3">
-                                <div class="form-group-custom">
+                            <div class="form-grid-3" id="custody-contact-grid">
+                                <div class="form-group-custom" id="reporter-role-group">
                                     <label for="form-reporter-role">Person Reporting <span class="required-star">*</span></label>
                                     <select id="form-reporter-role">
                                         <option value="Passenger">Passenger</option>
@@ -802,7 +853,7 @@
                                 </div>
 
                                 <div class="form-group-custom">
-                                    <label for="form-reporter-name">Reporter Full Name <span class="required-star">*</span></label>
+                                    <label for="form-reporter-name" id="reporter-name-label">Reporter Full Name <span class="required-star">*</span></label>
                                     <input type="text" id="form-reporter-name" placeholder="Your full name" required />
                                     <span class="input-error-msg" id="err-reporter-name">Name is required for ownership matching</span>
                                 </div>
@@ -1023,9 +1074,300 @@
             </div>
         </section>
 
+        <!-- ================= VIEW: MY PROFILE (passenger) ================= -->
+        <section class="view-section" id="view-profile">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">PASSENGER PORTAL</span>
+                    <h1 class="page-main-heading">My Profile</h1>
+                    <p class="page-main-sub">Keep your contact details up to date so staff can reach you when an item is matched.</p>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="profile-card">
+                    <div class="profile-avatar-col">
+                        <div class="avatar-initials avatar-lg" id="profile-avatar" aria-label="Profile picture">?</div>
+                        <p class="profile-avatar-note">Your picture is created automatically from your name.</p>
+                    </div>
+
+                    <form class="profile-form" id="form-profile" novalidate>
+                        <div class="form-group-custom">
+                            <label for="profile-name">Full Name <span class="required-star">*</span></label>
+                            <input type="text" id="profile-name" placeholder="Your full name" maxlength="60" autocomplete="name" />
+                            <span class="input-error-msg" id="err-profile-name">Please enter your name</span>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="profile-email">Email</label>
+                            <input type="email" id="profile-email" readonly />
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="profile-phone">Phone Number</label>
+                            <input type="tel" id="profile-phone" placeholder="e.g. +91 98765 43210" maxlength="20" autocomplete="tel" />
+                            <span class="input-error-msg" id="err-profile-phone">Enter a valid phone number (7–15 digits)</span>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="profile-address">Address</label>
+                            <textarea id="profile-address" rows="3" placeholder="House / street, area, city, PIN code" maxlength="200" autocomplete="street-address"></textarea>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button type="submit" class="btn btn-primary-mustard">Save Profile</button>
+                            <button type="button" class="btn btn-outline-brown" id="btn-profile-cancel">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= STAFF VIEW: DASHBOARD ================= -->
+        <section class="view-section" id="view-staff-home">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">STAFF PORTAL</span>
+                    <h1 class="page-main-heading" id="staff-greeting">Staff Operations Desk</h1>
+                    <p class="page-main-sub" id="staff-subline"></p>
+                </div>
+            </div>
+
+            <div class="container dashboard-container">
+                <div class="staff-kpi-grid" id="staff-kpis"></div>
+
+                <div class="staff-home-grid">
+                    <div class="staff-stack">
+                        <div class="staff-panel">
+                            <div class="staff-panel-head">
+                                <h3>Claims awaiting verification</h3>
+                                <span class="staff-count-pill" id="staff-claims-count">0</span>
+                            </div>
+                            <div id="staff-claims-queue"></div>
+                        </div>
+
+                        <div class="staff-panel">
+                            <div class="staff-panel-head">
+                                <h3>Recently received items</h3>
+                                <button type="button" class="staff-link-btn" data-view-link="staff-inventory">Open inventory →</button>
+                            </div>
+                            <div id="staff-recent-intake"></div>
+                        </div>
+                    </div>
+
+                    <div class="staff-stack">
+                        <div class="staff-panel">
+                            <div class="staff-panel-head">
+                                <h3>Suggested matches</h3>
+                                <button type="button" class="staff-link-btn" data-view-link="staff-matching">View all →</button>
+                            </div>
+                            <div id="staff-match-preview"></div>
+                        </div>
+
+                        <div class="staff-panel">
+                            <div class="staff-panel-head">
+                                <h3>Items by custody point</h3>
+                            </div>
+                            <div id="staff-custody-bars"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= STAFF VIEW: MANAGE INVENTORY ================= -->
+        <section class="view-section" id="view-staff-inventory">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">STAFF PORTAL</span>
+                    <h1 class="page-main-heading">Manage Inventory</h1>
+                    <p class="page-main-sub">Every item and report in the system. Search, filter and check custody locations.</p>
+                </div>
+            </div>
+
+            <div class="container dashboard-container">
+                <div class="staff-toolbar">
+                    <input type="search" id="staff-inv-search" class="staff-search" placeholder="Search by item, reference, route or location…" aria-label="Search inventory" />
+                    <div class="feed-type-switch staff-type-switch" id="staff-inv-type" role="tablist" aria-label="Item type">
+                        <button type="button" class="feed-type-btn active" data-inv-type="all">All</button>
+                        <button type="button" class="feed-type-btn" data-inv-type="Found">Found</button>
+                        <button type="button" class="feed-type-btn" data-inv-type="Lost">Lost</button>
+                    </div>
+                    <select id="staff-inv-status" class="form-select-styled staff-select" aria-label="Filter by status">
+                        <option value="all">All statuses</option>
+                        <option value="Claim Pending">Claim Pending</option>
+                        <option value="Possible Match">Possible Match</option>
+                        <option value="Recovered">Recovered</option>
+                    </select>
+                    <select id="staff-inv-custody" class="form-select-styled staff-select" aria-label="Filter by custody point"></select>
+                </div>
+
+                <div class="admin-table-card">
+                    <div class="admin-card-header">
+                        <h3>Inventory</h3>
+                        <span class="admin-pill-note" id="staff-inv-count">0 items</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="admin-table staff-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Custody point</th>
+                                    <th>Reported</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-inv-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= STAFF VIEW: DIRECT MATCHING ================= -->
+        <section class="view-section" id="view-staff-matching">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">STAFF PORTAL</span>
+                    <h1 class="page-main-heading">Direct Matching</h1>
+                    <p class="page-main-sub">The system pairs lost reports with items held in custody. Confirm a good match to notify the passenger, or dismiss a wrong one.</p>
+                </div>
+                <div class="page-header-actions">
+                    <select id="staff-match-min" class="form-select-styled staff-select" aria-label="Minimum match score">
+                        <option value="0">All scores</option>
+                        <option value="70">70% and above</option>
+                        <option value="90">90% and above</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="container dashboard-container">
+                <div class="staff-match-summary" id="staff-match-summary"></div>
+                <div class="staff-match-grid" id="staff-match-grid"></div>
+            </div>
+        </section>
+
+        <!-- ================= STAFF VIEW: DISPOSAL MANAGEMENT ================= -->
+        <section class="view-section" id="view-staff-disposal">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">STAFF PORTAL</span>
+                    <h1 class="page-main-heading">Disposal Management</h1>
+                    <p class="page-main-sub">Unclaimed property that has passed the 90-day holding period. Dispose of it, or extend the hold by 30 days.</p>
+                </div>
+            </div>
+
+            <div class="container dashboard-container">
+                <div class="staff-kpi-grid cols-4" id="staff-disposal-stats"></div>
+
+                <div class="staff-toolbar">
+                    <select id="staff-disp-filter" class="form-select-styled staff-select" aria-label="Filter by disposal status">
+                        <option value="all">All items</option>
+                        <option value="Due for Disposal">Due for disposal</option>
+                        <option value="Hold Extended">Hold extended</option>
+                        <option value="Disposed">Disposed</option>
+                    </select>
+                </div>
+
+                <div class="admin-table-card">
+                    <div class="admin-card-header">
+                        <h3>Unclaimed property past the holding period</h3>
+                        <span class="admin-pill-note">90-day retention policy</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="admin-table staff-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Category</th>
+                                    <th>Held at</th>
+                                    <th>Days held</th>
+                                    <th>Disposal method</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-disposal-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- ================= MODAL 1: ITEM DETAILS & POSSIBLE MATCHES ================= -->
+    <!-- ================= MODAL: STAFF CLAIM REVIEW ================= -->
+    <div class="modal-overlay" id="modal-claim-review" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content hover-lift">
+                <div class="modal-header">
+                    <div class="modal-header-meta">
+                        <span class="report-type-badge-lg found">CLAIM</span>
+                        <span class="modal-ref-id" id="review-claim-id">CLM-0000</span>
+                    </div>
+                    <button class="modal-close-btn" id="modal-claim-review-close" type="button" aria-label="Close claim review">&times;</button>
+                </div>
+                <div class="modal-body" id="review-claim-body"></div>
+                <div class="modal-footer review-footer" id="review-claim-footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: PASSENGER FEEDBACK ================= -->
+    <div class="modal-overlay" id="modal-feedback" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content hover-lift">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title">Share Your Feedback</h2>
+                        <p class="modal-subtitle">Tell us how BackToYou worked for you. Your feedback goes straight to the admin team.</p>
+                    </div>
+                    <button class="modal-close-btn" id="modal-feedback-close" type="button" aria-label="Close feedback">&times;</button>
+                </div>
+                <form id="form-feedback" novalidate>
+                    <div class="modal-body">
+                        <div class="form-group-custom">
+                            <label>How would you rate your experience? <span class="required-star">*</span></label>
+                            <div class="star-rating" id="feedback-stars" role="radiogroup" aria-label="Rating">
+                                <button type="button" class="star-btn" data-value="1" aria-label="1 star">&#9733;</button>
+                                <button type="button" class="star-btn" data-value="2" aria-label="2 stars">&#9733;</button>
+                                <button type="button" class="star-btn" data-value="3" aria-label="3 stars">&#9733;</button>
+                                <button type="button" class="star-btn" data-value="4" aria-label="4 stars">&#9733;</button>
+                                <button type="button" class="star-btn" data-value="5" aria-label="5 stars">&#9733;</button>
+                            </div>
+                            <input type="hidden" id="feedback-rating" value="0" />
+                            <span class="input-error-msg" id="err-feedback-rating">Please choose a rating</span>
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="feedback-category">What is your feedback about?</label>
+                            <select id="feedback-category">
+                                <option>Ease of use</option>
+                                <option>Reporting an item</option>
+                                <option>Search &amp; matching</option>
+                                <option>Claim process</option>
+                                <option>Bug / problem</option>
+                                <option>Suggestion</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="feedback-message">Your feedback <span class="required-star">*</span></label>
+                            <textarea id="feedback-message" rows="5" placeholder="What worked well? What was confusing? What would you change?"></textarea>
+                            <span class="input-error-msg" id="err-feedback-message">Please write at least 10 characters</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary-mustard">Send Feedback</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="modal-details" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content hover-lift">
@@ -1098,7 +1440,6 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-brown" id="btn-cancel-claim">Cancel</button>
                         <button type="submit" class="btn btn-primary-mustard hover-glow" id="btn-submit-claim-action">
                             <span>Submit Claim Dossier</span>
                         </button>
@@ -1122,16 +1463,19 @@
                 </div>
 
                 <div class="modal-body admin-console-body">
-                    <!-- Admin section tabs: each nav link opens its own panel -->
-                    <div class="admin-tabs" role="tablist" aria-label="Admin sections">
-                        <button class="admin-tab-btn" role="tab" data-admin-tab="console" type="button">Staff Console</button>
-                        <button class="admin-tab-btn" role="tab" data-admin-tab="users" type="button">User Management</button>
-                        <button class="admin-tab-btn" role="tab" data-admin-tab="audit" type="button">Audit Trail</button>
-                        <button class="admin-tab-btn" role="tab" data-admin-tab="disposal" type="button">Disposal Mgmt</button>
+                    <!-- Admin sections are selected directly from the main navigation. -->
+                    <!-- PANE: Network Analytics and complete activity trail -->
+                    <div class="admin-pane active" id="admin-pane-analytics">
+                        <div class="admin-stat-row" id="admin-analytics-stats"></div>
                     </div>
 
                     <!-- PANE: Staff Console (claims verification queue) -->
                     <div class="admin-pane" id="admin-pane-console">
+                        <div class="admin-section-intro">
+                            <span class="admin-section-kicker">OPERATIONS WORKSPACE</span>
+                            <h2>Staff Console</h2>
+                            <p>Review passenger ownership claims, approve or reject requests, and monitor custody handovers.</p>
+                        </div>
                         <div class="admin-stat-row">
                             <div class="admin-stat-tile">
                                 <span class="tile-val" id="admin-pending-claims-count">2</span>
@@ -1178,6 +1522,11 @@
 
                     <!-- PANE: User Management -->
                     <div class="admin-pane" id="admin-pane-users">
+                        <div class="admin-section-intro">
+                            <span class="admin-section-kicker">ACCOUNT ADMINISTRATION</span>
+                            <h2>User Management</h2>
+                            <p>View registered passengers and staff, check account activity, and manage account access.</p>
+                        </div>
                         <div class="admin-stat-row" id="admin-users-stats"></div>
                         <div class="admin-table-card">
                             <div class="admin-card-header">
@@ -1202,68 +1551,50 @@
                         </div>
                     </div>
 
-                    <!-- PANE: Audit Trail -->
-                    <div class="admin-pane" id="admin-pane-audit">
-                        <div class="admin-stat-row" id="admin-audit-stats"></div>
+
+                    <!-- PANE: Passenger Feedback -->
+                    <div class="admin-pane" id="admin-pane-feedback">
+                        <div class="admin-section-intro">
+                            <span class="admin-section-kicker">PASSENGER VOICE</span>
+                            <h2>Passenger Feedback</h2>
+                            <p>Read ratings, comments, reported problems, and suggestions submitted by passengers.</p>
+                        </div>
+                        <div class="admin-stat-row" id="admin-feedback-stats"></div>
                         <div class="admin-table-card">
                             <div class="admin-card-header">
-                                <h3>System Audit Trail</h3>
-                                <select class="admin-filter-select" id="admin-audit-filter" aria-label="Filter audit entries">
-                                    <option value="all">All activity</option>
-                                    <option value="Claims">Claim decisions</option>
-                                    <option value="Users">User management</option>
-                                    <option value="Disposal">Disposal</option>
-                                    <option value="Access">Access</option>
+                                <h3>Passenger Feedback</h3>
+                                <select class="admin-filter-select" id="admin-feedback-filter" aria-label="Filter feedback by category">
+                                    <option value="all">All categories</option>
+                                    <option value="Ease of use">Ease of use</option>
+                                    <option value="Reporting an item">Reporting an item</option>
+                                    <option value="Search &amp; matching">Search &amp; matching</option>
+                                    <option value="Claim process">Claim process</option>
+                                    <option value="Bug / problem">Bug / problem</option>
+                                    <option value="Suggestion">Suggestion</option>
+                                    <option value="Other">Other</option>
                                 </select>
                             </div>
                             <div class="table-responsive">
                                 <table class="admin-table">
                                     <thead>
                                         <tr>
-                                            <th>Time</th>
-                                            <th>Performed By</th>
+                                            <th>Received</th>
+                                            <th>Passenger</th>
+                                            <th>Rating</th>
                                             <th>Category</th>
-                                            <th>Action</th>
-                                            <th>Target</th>
+                                            <th>Feedback</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="admin-audit-tbody"></tbody>
+                                    <tbody id="admin-feedback-tbody"></tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
 
-                    <!-- PANE: Disposal Management -->
-                    <div class="admin-pane" id="admin-pane-disposal">
-                        <div class="admin-stat-row" id="admin-disposal-stats"></div>
-                        <div class="admin-table-card">
-                            <div class="admin-card-header">
-                                <h3>Unclaimed Property Past Holding Period</h3>
-                                <span class="admin-pill-note">90-day retention policy</span>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="admin-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Item</th>
-                                            <th>Category</th>
-                                            <th>Held At</th>
-                                            <th>Days Held</th>
-                                            <th>Disposal Method</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="admin-disposal-tbody"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="modal-footer">
-                    <span class="text-xs text-muted">All approvals/rejections create logged custody audit entries.</span>
-                    <button class="btn btn-outline-brown" id="admin-close-btn">Close Portal</button>
+                    <span class="text-xs text-muted">All approvals and rejections are recorded against the claim.</span>
                 </div>
             </div>
         </div>
@@ -1347,10 +1678,11 @@
             <div class="footer-col">
                 <h4 class="footer-heading">Services</h4>
                 <ul class="footer-links">
-                    <li><a href="#report" class="footer-nav-link" data-view="report">Report Lost Item</a></li>
-                    <li><a href="#report" class="footer-nav-link" data-view="report">Report Found Item</a></li>
+                    <li class="footer-passenger-only"><a href="#report" class="footer-nav-link" data-view="report">Report Lost Item</a></li>
+                    <li class="footer-passenger-only"><a href="#report" class="footer-nav-link" data-view="report">Report Found Item</a></li>
                     <li><a href="#browse" class="footer-nav-link" data-view="browse">Rule-Based Matching</a></li>
                     <li><a href="#faq" class="footer-nav-link" data-view="faq">Collection Guidelines</a></li>
+                    <li id="footer-feedback-item" style="display:none;"><a href="#" class="footer-nav-link" id="footer-feedback-link">Share Feedback</a></li>
                 </ul>
             </div>
         </div>
