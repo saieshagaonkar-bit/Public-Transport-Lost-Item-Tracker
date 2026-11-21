@@ -20,7 +20,27 @@ The system adheres to an architectural, high-contrast palette:
 ## 🏛️ System Architecture
 
 ```
-Public-Transport-Lost-Item-Tracker/ ├── backend/ # Node.js + Express.js + MongoDB REST API service │ ├── config/db.js # Database connection & memory fallback manager │ ├── models/ # Mongoose schemas (User, Item, Claim, Notification, Feedback, AuditLog, Disposal) │ ├── controllers/ # Business logic & database operations │ ├── routes/ # REST endpoints routing │ ├── middleware/ # JWT verification & role authorization (RBAC) │ ├── utils/matching.js # Explainable rule‑based matching engine │ ├── utils/seedData.js # Realistic transit database seeder │ ├── tests/api.test.js # Automated test suite (17 passed tests) │ ├── package.json # Dependencies and test runner configuration │ ├── .env.example # Configuration template │ └── server.js # Express API server entry point ├── frontend/ # Static site (HTML/CSS/JS) │ ├── index.html # Multi‑view responsive layout (SPA) │ ├── style.css # Stylesheet & design tokens │ ├── app.js # Frontend state manager & UI controllers │ ├── api.js # Centralized fetch API client │ └── *.jpg # Brand logos & item thumbnails ├── .gitignore # Excludes node_modules, .env, and sensitive files └── README.md # Project documentation
+Public-Transport-Lost-Item-Tracker/
+├── backend/ # Node.js + Express.js + MongoDB REST API service │
+├── config/db.js # Database connection & memory fallback manager │
+├── models/ # Mongoose schemas (User, Item, Claim, Notification, Feedback, AuditLog, Disposal) │
+├── controllers/ # Business logic & database operations │
+├── routes/ # REST endpoints routing │
+├── middleware/ # JWT verification & role authorization (RBAC) │
+├── utils/matching.js # Explainable rule‑based matching engine │
+├── utils/seedData.js # Realistic transit database seeder │
+├── tests/api.test.js # Automated test suite (17 passed tests) │
+├── package.json # Dependencies and test runner configuration │
+├── .env.example # Configuration template │
+    └── server.js # Express API server entry point
+├── frontend/ # Static site (HTML/CSS/JS) │
+ ├── index.html # Multi‑view responsive layout (SPA) │
+├── style.css # Stylesheet & design tokens │
+├── app.js # Frontend state manager & UI controllers │
+├── api.js # Centralized fetch API client │
+    └── *.jpg # Brand logos & item thumbnails
+ ├── .gitignore # Excludes node_modules, .env, and sensitive files
+    └── README.md # Project documentation
 ```
 
 ---
