@@ -72,6 +72,7 @@ async function apiRequest(endpoint, options = {}) {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      // Handle expired session
       if (response.status === 401 && token) {
         clearSession();
         window.dispatchEvent(new CustomEvent('backtoyou:unauthorized', { detail: data }));
@@ -84,6 +85,7 @@ async function apiRequest(endpoint, options = {}) {
 
     return data;
   } catch (err) {
+    // Check for network connection failure
     if (err.name === 'TypeError' && err.message.includes('fetch')) {
       const netError = new Error(
         `Unable to connect to the BackToYou API server at ${API_BASE_URL}. Ensure the backend server is running.`
@@ -103,16 +105,19 @@ const api = {
   setStoredUser,
   clearSession,
 
+  // Health
   health: {
     check: () => apiRequest('/health'),
   },
 
+  // Auth
   auth: {
     register: (userData) => apiRequest('/auth/register', { method: 'POST', body: userData }),
     login: (credentials) => apiRequest('/auth/login', { method: 'POST', body: credentials }),
     getMe: () => apiRequest('/auth/me'),
   },
 
+  // Items (Lost & Found)
   items: {
     getAll: (params = {}) => {
       const qs = new URLSearchParams(params).toString();
@@ -125,6 +130,7 @@ const api = {
     getMatches: (id) => apiRequest(`/items/${id}/matches`),
   },
 
+  // Claims
   claims: {
     create: (itemId, claimData) => apiRequest(`/items/${itemId}/claims`, { method: 'POST', body: claimData }),
     getMyClaims: () => apiRequest('/me/claims'),
@@ -132,6 +138,7 @@ const api = {
     review: (claimId, reviewData) => apiRequest(`/admin/claims/${claimId}`, { method: 'PATCH', body: reviewData }),
   },
 
+  // Passenger Dashboard & Profile
   me: {
     getItems: () => apiRequest('/me/items'),
     getNotifications: () => apiRequest('/me/notifications'),
@@ -140,6 +147,7 @@ const api = {
     updateProfile: (profileData) => apiRequest('/users/profile', { method: 'PATCH', body: profileData }),
   },
 
+  // Admin & Staff Operations
   admin: {
     getSummary: () => apiRequest('/admin/summary'),
     getUsers: (params = {}) => {
@@ -152,6 +160,7 @@ const api = {
     updateDisposal: (id, action) => apiRequest(`/admin/disposals/${id}`, { method: 'PATCH', body: { action } }),
   },
 
+  // Passenger Feedback
   feedback: {
     submit: (feedbackData) => apiRequest('/feedback', { method: 'POST', body: feedbackData }),
     getAll: (category) => apiRequest(`/feedback${category ? `?category=${category}` : ''}`),

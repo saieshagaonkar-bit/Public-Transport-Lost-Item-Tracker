@@ -1,1323 +1,1707 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BackToyou — Public Transport Lost &amp; Found</title>
-  <meta name="description" content="BackToyou — Official public transport lost item recovery platform. Search, report, match, and claim belongings safely across bus, metro, train, and station hubs.">
-  
-  <!-- Modern Typography Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BackToyou — Public Transport Lost &amp; Found</title>
+    <meta name="description" content="BackToyou — Official public transport lost item recovery platform. Search, report, match, and claim belongings safely across bus, metro, train, and station hubs.">
+
+    <!-- Modern Typography Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
 </head>
 <body data-theme="light">
-  <!-- Aesthetic Floating Gradient Glow Elements -->
-  <div class="ambient-glow glow-1" aria-hidden="true"></div>
-  <div class="ambient-glow glow-2" aria-hidden="true"></div>
+    <!-- Aesthetic Floating Gradient Glow Elements -->
+    <div class="ambient-glow glow-1" aria-hidden="true"></div>
+    <div class="ambient-glow glow-2" aria-hidden="true"></div>
 
-  <!-- Announcement & System Bar -->
-  <header class="top-nav-wrapper">
-    <div class="utility-bar">
-      <div class="container utility-content">
-        <div class="utility-left">
-          <span class="live-pulse-badge"><span class="pulse-dot"></span> Live Transit System Feed</span>
-          <span class="sep-dot">•</span>
-          <span class="utility-note"><strong id="stat-active-today">48</strong> active recoveries underway across 14 transit corridors</span>
+    <!-- Announcement & System Bar -->
+    <header class="top-nav-wrapper">
+        <!-- Main Navigation Bar -->
+        <nav class="main-navbar">
+            <div class="container nav-container">
+                <a href="#dashboard" class="brand-logo" id="nav-brand">
+                    <div class="brand-icon-box">
+                        <img src="logo.jpg" alt="BackToYou Transit Logo" class="brand-logo-img" />
+                    </div>
+                    <div class="brand-meta">
+                        <span class="brand-name">BackTo<strong>You</strong></span>
+                        <span class="brand-sub">PUBLIC TRANSPORT LOST &amp; FOUND</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Items: Populated dynamically per role after login -->
+                <ul class="nav-links" id="nav-links">
+                    <!-- Populated by JS based on role -->
+                </ul>
+
+                <!-- Action CTAs -->
+                <div class="nav-actions">
+                    <button class="notif-bell-btn" id="notif-toggle-btn" aria-label="Notifications" title="System Notifications">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <span class="notif-badge" id="notif-badge-indicator">2</span>
+                    </button>
+
+                    <div class="user-auth-nav-pill" id="user-auth-pill" style="display: none;">
+                        <span class="user-avatar-dot"></span>
+                        <span class="avatar-initials avatar-xs" id="nav-avatar" style="display: none;" aria-hidden="true"></span>
+                        <span id="user-nav-label">Sarah Jenkins (Passenger)</span>
+                    </div>
+
+                    <button class="btn btn-secondary-brown" id="btn-open-login">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                        <span>Login</span>
+                    </button>
+
+                    <button class="btn-logout-nav" id="btn-logout" style="display: none;" title="Sign out of transit account">
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Notification Dropdown Drawer -->
+    <div class="notif-drawer" id="notif-drawer" aria-hidden="true">
+        <div class="notif-header">
+            <h4>Recent Transit Alerts & Matches</h4>
+            <button class="text-link-sm" id="btn-mark-all-read">Mark read</button>
         </div>
-        <div class="utility-right">
-          <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark/light contrast mode" title="Toggle Aesthetic Contrast">
-            <svg class="sun-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-            <span class="theme-label">Theme Mood</span>
-          </button>
+        <div class="notif-list" id="notif-list-container">
+            <!-- Injected dynamically -->
         </div>
-      </div>
     </div>
 
-    <!-- Main Navigation Bar -->
-    <nav class="main-navbar">
-      <div class="container nav-container">
-        <a href="#home" class="brand-logo" id="nav-brand">
-          <div class="brand-icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="15" rx="2"></rect>
-              <line x1="3" y1="9" x2="21" y2="9"></line>
-              <line x1="12" y1="3" x2="12" y2="9"></line>
-              <circle cx="7.5" cy="14" r="1.5" fill="#000000"></circle>
-              <circle cx="16.5" cy="14" r="1.5" fill="#000000"></circle>
-              <path d="M5 18v2"></path>
-              <path d="M19 18v2"></path>
-            </svg>
-          </div>
-          <div class="brand-meta">
-            <span class="brand-name">BackTo<strong>You</strong></span>
-            <span class="brand-sub">PUBLIC TRANSPORT LOST &amp; FOUND</span>
-          </div>
-        </a>
+    <!-- MAIN APP CONTAINER (Multi-View Single Page) -->
+    <main id="app-content">
 
-        <!-- Desktop Navigation Items -->
-        <ul class="nav-links" id="nav-links">
-          <li><a href="#home" class="nav-link active" data-view="home">Home</a></li>
-          <li><a href="#browse" class="nav-link" data-view="browse">Browse Reports <span class="nav-count-badge" id="nav-badge-count">12</span></a></li>
-          <li><a href="#dashboard" class="nav-link" data-view="dashboard">My Dashboard</a></li>
-          <li><a href="#faq" class="nav-link" data-view="faq">FAQ & Support</a></li>
-        </ul>
+        <!-- ================= VIEW 0: INITIAL PASSENGER SIGN IN & LOGIN ================= -->
+        <section class="view-section active" id="view-login">
+            <div class="login-view-wrapper">
+                <div class="login-card-container">
+                    <div class="login-brand-header">
+                        <div class="brand-icon-box login-brand-icon-box" style="margin: 0 auto 12px; width: 64px; height: 64px; border-radius: 16px;">
+                            <img src="logo.jpg" alt="BackToYou Transit Logo" class="brand-logo-img" />
+                        </div>
+                        <h2 class="brand-name" style="font-size: 1.85rem; justify-content: center; display: flex;">
+                            BackTo<strong style="color: var(--mustard-600);">You</strong>
+                        </h2>
+                        <span class="brand-sub" style="margin-top: 4px; text-align: center;">PUBLIC TRANSPORT LOST &amp; FOUND</span>
+                    </div>
 
-        <!-- Action CTAs -->
-        <div class="nav-actions">
-          <button class="notif-bell-btn" id="notif-toggle-btn" aria-label="Notifications" title="System Notifications">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            <span class="notif-badge" id="notif-badge-indicator">2</span>
-          </button>
+                    <div class="login-box-card">
+                        <!-- Role Selector Tabs: Passenger, Staff Portal, Admin -->
+                        <div class="login-role-tabs" role="tablist" aria-label="Login Role Selection">
+                            <button type="button" class="login-role-tab active" data-role="passenger" id="role-tab-passenger" role="tab" aria-selected="true">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                <span>Passenger</span>
+                            </button>
+                            <button type="button" class="login-role-tab" data-role="staff" id="role-tab-staff" role="tab" aria-selected="false">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
+                                <span>Staff Portal</span>
+                            </button>
+                            <button type="button" class="login-role-tab" data-role="admin" id="role-tab-admin" role="tab" aria-selected="false">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                                <span>Admin Login</span>
+                            </button>
+                        </div>
 
-          <button class="btn btn-secondary-brown" id="btn-open-login">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span id="user-nav-label">Sign In</span>
-          </button>
+                        <div class="login-card-title-group">
+                            <h3 id="login-heading">Passenger Login</h3>
+                            <p id="login-subheading" hidden></p>
+                        </div>
 
-          <button class="btn btn-primary-mustard" id="nav-report-cta">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>Report an Item</span>
-          </button>
+                        <!-- Passenger only: Log In and Sign Up are separate screens -->
+                        <div class="auth-mode-switch" id="passenger-auth-switch" role="tablist" aria-label="Passenger account">
+                            <button type="button" class="auth-mode-btn active" role="tab" aria-selected="true" data-auth-mode="login">Log In</button>
+                            <button type="button" class="auth-mode-btn" role="tab" aria-selected="false" data-auth-mode="signup">Sign Up</button>
+                        </div>
 
-          <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle Navigation Menu">
-            <span></span><span></span><span></span>
-          </button>
-        </div>
-      </div>
-    </nav>
-  </header>
+                        <form id="form-login-view" novalidate>
+                            <input type="hidden" id="login-active-role" value="passenger" />
+                            <div class="form-group-custom">
+                                <label for="login-view-email" id="login-email-label">Passenger Email / Transit ID</label>
+                                <input type="text" id="login-view-email" type="email" placeholder="passenger@metro.org" value="sarah.jenkins@metrotransit.org" required />
+                            </div>
 
-  <!-- Notification Dropdown Drawer -->
-  <div class="notif-drawer" id="notif-drawer" aria-hidden="true">
-    <div class="notif-header">
-      <h4>Recent Transit Alerts & Matches</h4>
-      <button class="text-link-sm" id="btn-mark-all-read">Mark read</button>
-    </div>
-    <div class="notif-list" id="notif-list-container">
-      <!-- Injected dynamically -->
-    </div>
-  </div>
+                            <div class="form-group-custom">
+                                <label for="login-view-password">Password</label>
+                                <div class="input-with-action">
+                                    <input type="password" id="login-view-password" placeholder="••••••••" value="TransitPass2026!" required />
+                                    <button type="button" class="btn-toggle-pwd" id="login-view-toggle-pwd" aria-label="Show password" title="Toggle password visibility">
+                                        <svg class="eye-icon-open" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        <svg class="eye-icon-closed" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
 
-  <!-- MAIN APP CONTAINER (Multi-View Single Page) -->
-  <main id="app-content">
+                            <p class="form-error-banner" id="login-error" role="alert" hidden></p>
 
-    <!-- ================= VIEW 0: INITIAL PASSENGER SIGN IN & LOGIN ================= -->
-    <section class="view-section active" id="view-login">
-      <div class="login-view-wrapper">
-        <div class="login-card-container">
-          <div class="login-brand-header">
-            <div class="brand-icon-box" style="margin: 0 auto 12px; width: 48px; height: 48px;">
-              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="15" rx="2"></rect>
-                <line x1="3" y1="9" x2="21" y2="9"></line>
-                <line x1="12" y1="3" x2="12" y2="9"></line>
-                <circle cx="7.5" cy="14" r="1.5" fill="#000000"></circle>
-                <circle cx="16.5" cy="14" r="1.5" fill="#000000"></circle>
-                <path d="M5 18v2"></path>
-                <path d="M19 18v2"></path>
-              </svg>
-            </div>
-            <h2 class="brand-name" style="font-size: 1.85rem; justify-content: center; display: flex;">
-              BackTo<strong style="color: var(--mustard-600);">You</strong>
-            </h2>
-            <span class="brand-sub" style="margin-top: 4px; text-align: center;">PUBLIC TRANSPORT LOST &amp; FOUND</span>
-          </div>
+                            <button type="submit" class="btn btn-primary-mustard btn-block btn-lg" id="btn-login-view-submit" style="margin-top: 24px;">
+                                <span id="btn-login-text">Sign In as Passenger</span>
+                                <span>→</span>
+                            </button>
 
-          <div class="login-box-card">
-            <div class="login-card-title-group">
-              <h3>Passenger Sign In</h3>
-              <p>Welcome! Sign in to view matches, register reports, and track custody handovers.</p>
-            </div>
+                            <p class="auth-alt-link" id="login-to-signup-wrap">
+                                New passenger? <a href="#" id="link-to-signup">Create an account</a>
+                            </p>
+                        </form>
 
-            <form id="form-login-view">
-              <div class="form-group-custom">
-                <label for="login-view-email">Passenger Email / Transit ID</label>
-                <input type="email" id="login-view-email" placeholder="passenger@metro.org" value="sarah.jenkins@metrotransit.org" required />
-              </div>
+                        <!-- Passenger Sign Up -->
+                        <form id="form-signup-view" novalidate hidden>
+                            <div class="form-group-custom">
+                                <label for="signup-name">Full Name <span class="required-star">*</span></label>
+                                <input type="text" id="signup-name" placeholder="Your full name" maxlength="60" autocomplete="name" />
+                                <span class="input-error-msg" id="err-signup-name">Please enter your name</span>
+                            </div>
 
-              <div class="form-group-custom">
-                <label for="login-view-password">Password</label>
-                <div class="input-with-action">
-                  <input type="password" id="login-view-password" placeholder="••••••••" value="TransitPass2026!" required />
-                  <button type="button" class="btn-toggle-pwd" id="login-view-toggle-pwd" aria-label="Show password">👁️</button>
+                            <div class="form-group-custom">
+                                <label for="signup-email">Email <span class="required-star">*</span></label>
+                                <input type="email" id="signup-email" placeholder="you@email.com" autocomplete="email" />
+                                <span class="input-error-msg" id="err-signup-email">Enter a valid email address</span>
+                            </div>
+
+                            <div class="form-group-custom">
+                                <label for="signup-phone">Phone Number</label>
+                                <input type="tel" id="signup-phone" placeholder="e.g. +91 98765 43210" maxlength="20" autocomplete="tel" />
+                                <span class="input-error-msg" id="err-signup-phone">Enter a valid phone number (7–15 digits)</span>
+                            </div>
+
+                            <div class="form-group-custom">
+                                <label for="signup-password">Password <span class="required-star">*</span></label>
+                                <div class="input-with-action">
+                                    <input type="password" id="signup-password" placeholder="At least 8 characters" autocomplete="new-password" />
+                                    <button type="button" class="btn-toggle-pwd" data-toggle-target="signup-password" aria-label="Show password" title="Show / hide password">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </button>
+                                </div>
+                                <span class="input-error-msg" id="err-signup-password">Use at least 8 characters</span>
+                            </div>
+
+                            <div class="form-group-custom">
+                                <label for="signup-confirm">Confirm Password <span class="required-star">*</span></label>
+                                <input type="password" id="signup-confirm" placeholder="Re-enter your password" autocomplete="new-password" />
+                                <span class="input-error-msg" id="err-signup-confirm">Passwords do not match</span>
+                            </div>
+
+                            <p class="form-error-banner" id="signup-error" role="alert" hidden></p>
+
+                            <button type="submit" class="btn btn-primary-mustard btn-block btn-lg" style="margin-top: 24px;">
+                                <span>Create Account</span>
+                                <span>→</span>
+                            </button>
+
+                            <p class="auth-alt-link">
+                                Already have an account? <a href="#" id="link-to-login">Log in</a>
+                            </p>
+                        </form>
+                    </div>
+
+                    <div class="login-footer-note">
+                        <span>Official Regional Public Transport Lost &amp; Found Portal</span>
+                    </div>
                 </div>
-              </div>
-
-              <div class="auth-helper-row" style="margin-bottom: 20px;">
-                <label class="remember-label">
-                  <input type="checkbox" checked />
-                  <span>Remember my passenger account</span>
-                </label>
-                <a href="#faq" class="text-link-sm">Need help?</a>
-              </div>
-
-              <button type="submit" class="btn btn-primary-mustard btn-block btn-lg" id="btn-login-view-submit">
-                <span>Sign In as Passenger</span>
-                <span>→</span>
-              </button>
-
-              <div class="login-divider">
-                <span>OR</span>
-              </div>
-
-              <button type="button" class="btn btn-outline-brown btn-block" id="btn-login-view-guest">
-                <span>Continue as Guest Passenger / Browse</span>
-              </button>
-            </form>
-          </div>
-
-          <div class="login-footer-note">
-            <span>Official Regional Public Transport Lost &amp; Found Portal</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= VIEW 1: HOME PAGE ================= -->
-    <section class="view-section" id="view-home">
-      <!-- Hero Section with Architectural Mustard, Espresso Brown, and Taupe Grey -->
-      <section class="hero-section">
-        <div class="container hero-container">
-          <div class="hero-left">
-            <div class="hero-pill-badge">
-              <span class="pill-dot"></span>
-              <span>Official Public Transit Recovery Network</span>
             </div>
-            <h1 class="hero-heading">
-              Lost something on your <span class="highlight-mustard">journey?</span> We’ll help you <span class="highlight-brown">recover it.</span>
-            </h1>
-            <p class="hero-subtitle">
-              Every day, hundreds of personal items are safely recovered across Metro lines, Regional Busses, and Commuter Terminals. Search active reports, get smart AI-assisted matches, and claim your belongings safely.
-            </p>
-
-            <!-- Hero Action Buttons -->
-            <div class="hero-cta-group">
-              <button class="btn btn-primary-mustard btn-lg hover-glow" id="hero-btn-report">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
-                <span>Report Lost / Found</span>
-              </button>
-              <button class="btn btn-outline-brown btn-lg" id="hero-btn-browse">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <span>Search Live Directory</span>
-              </button>
-            </div>
-
-            <!-- Trust Bar / Key Highlights -->
-            <div class="hero-trust-bar">
-              <div class="trust-item">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <span>100% Verified Handover</span>
-              </div>
-              <div class="trust-item">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                <span>Sub-24h Match Alerts</span>
-              </div>
-              <div class="trust-item">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <span>Private & Secure Records</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Hero Right: Interactive Quick Search Panel with Architectural Layering -->
-          <div class="hero-right">
-            <div class="interactive-search-card hover-lift">
-              <div class="card-glass-header">
-                <div class="card-badge-row">
-                  <span class="status-indicator-tag active">Live Database Sync</span>
-                  <span class="text-xs text-muted">Rule-Based Matcher v2.4</span>
-                </div>
-                <h3 class="card-title-lg">Fast Transit Query</h3>
-                <p class="card-subtitle-sm">Scan reported belongings across all connected public transport routes.</p>
-              </div>
-
-              <form class="hero-quick-search-form" id="hero-search-form">
-                <div class="form-group-custom">
-                  <label for="hero-keyword-input">Item Keyword or Brand</label>
-                  <div class="input-with-icon">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="hero-keyword-input" placeholder="e.g. Leather wallet, Airpods, Backpack..." />
-                  </div>
-                </div>
-
-                <div class="form-row-2">
-                  <div class="form-group-custom">
-                    <label for="hero-category-select">Category</label>
-                    <select id="hero-category-select">
-                      <option value="">All Categories</option>
-                      <option value="Electronics">Electronics</option>
-                      <option value="Bags & Wallets">Bags, Wallets & Luggage</option>
-                      <option value="Documents">IDs & Documents</option>
-                      <option value="Accessories">Jewelry & Accessories</option>
-                      <option value="Clothing">Clothing & Footwear</option>
-                      <option value="Keys">Keys & Badges</option>
-                    </select>
-                  </div>
-                  <div class="form-group-custom">
-                    <label for="hero-transit-select">Transport Mode</label>
-                    <select id="hero-transit-select">
-                      <option value="">Any Transport</option>
-                      <option value="Metro">Metro / Underground</option>
-                      <option value="Bus">City / Express Bus</option>
-                      <option value="Train">Commuter Train</option>
-                      <option value="Station">Station / Terminal Hub</option>\n                      <option value="Auto">Auto Rickshaw</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="filter-type-toggles">
-                  <label class="radio-pill">
-                    <input type="radio" name="hero-report-type" value="all" checked>
-                    <span>All Reports</span>
-                  </label>
-                  <label class="radio-pill">
-                    <input type="radio" name="hero-report-type" value="Lost">
-                    <span>Lost Only</span>
-                  </label>
-                  <label class="radio-pill">
-                    <input type="radio" name="hero-report-type" value="Found">
-                    <span>Found Only</span>
-                  </label>
-                </div>
-
-                <button type="submit" class="btn btn-primary-mustard btn-block btn-shimmer">
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                  <span>Search Registered Items</span>
-                </button>
-              </form>
-
-              <!-- Live Stat Snippet -->
-              <div class="hero-card-footer">
-                <div class="mini-stat">
-                  <span class="mini-val" id="mini-stat-matches">89%</span>
-                  <span class="mini-lbl">High Match Accuracy</span>
-                </div>
-                <div class="mini-stat-divider"></div>
-                <div class="mini-stat">
-                  <span class="mini-val" id="mini-stat-time">&lt; 36 hrs</span>
-                  <span class="mini-lbl">Average Custody Match</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Section: System Performance Live Statistics (Section 2 in Guide) -->
-      <section class="stats-ribbon-section">
-        <div class="container">
-          <div class="stats-ribbon-card">
-            <div class="stat-box hover-lift">
-              <div class="stat-icon-wrapper mustard-tint">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-              </div>
-              <div class="stat-info">
-                <span class="stat-num counter" id="stat-total-reports">1,482</span>
-                <span class="stat-desc">Total Reports Registered</span>
-              </div>
-            </div>
-
-            <div class="stat-box hover-lift">
-              <div class="stat-icon-wrapper brown-tint">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-              </div>
-              <div class="stat-info">
-                <span class="stat-num counter" id="stat-found-reports">864</span>
-                <span class="stat-desc">Items Held in Depot Custody</span>
-              </div>
-            </div>
-
-            <div class="stat-box hover-lift">
-              <div class="stat-icon-wrapper mustard-tint">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-              </div>
-              <div class="stat-info">
-                <span class="stat-num counter" id="stat-recovered-count">1,120</span>
-                <span class="stat-desc">Successful Reunited Belongings</span>
-              </div>
-            </div>
-
-            <div class="stat-box hover-lift">
-              <div class="stat-icon-wrapper grey-tint">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-              </div>
-              <div class="stat-info">
-                <span class="stat-num counter" id="stat-open-reports">362</span>
-                <span class="stat-desc">Active Open Inquiries</span>
-              </div>
-            </div>
-          </div>
-          <div class="data-source-note">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span>Live Demonstration Data — Synchronized with Metropolitan Transport Hub Protocol API</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Section: Transport Network Categories (Guide Page 3) -->
-      <section class="section-categories">
-        <div class="container">
-          <div class="section-heading-row">
-            <div>
-              <span class="eyebrow-text">TRANSIT CORRIDORS</span>
-              <h2 class="section-title">Explore by Transport Mode</h2>
-            </div>
-            <p class="section-caption">Filter belongings by where they were misplaced or secured.</p>
-          </div>
-
-          <div class="category-grid">
-            <button class="transport-card hover-lift" data-transit-filter="Train" aria-label="Browse Mumbai local train reports">
-              <div class="transit-icon-circle">
-                <!-- Indian suburban/local train icon -->
-                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="5" y="2.5" width="14" height="16" rx="3"/><path d="M5 9h14M9 5.5h.01M15 5.5h.01"/><path d="m8 18.5-2 3M16 18.5l2 3M8 14h8M8 21.5h8"/>
-                </svg>
-              </div>
-              <div class="transport-meta">
-                <h3 class="transport-name">Trains</h3>
-                <span class="transport-count">Local & long-distance trains</span>
-              </div>
-              <div class="hover-arrow" aria-hidden="true">→</div>
-            </button>
-
-            <button class="transport-card hover-lift" data-transit-filter="Bus" aria-label="Browse Indian city bus reports">
-              <div class="transit-icon-circle">
-                <!-- City bus icon -->
-                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="3" y="4" width="18" height="15" rx="3"/><path d="M3 10h18M7 7h3M14 7h3"/><circle cx="7" cy="18.5" r="1.5"/><circle cx="17" cy="18.5" r="1.5"/><path d="M6 22v-2M18 22v-2"/>
-                </svg>
-              </div>
-              <div class="transport-meta">
-                <h3 class="transport-name">Bus</h3>
-                <span class="transport-count">BEST, PMPML, MSRTC & city routes</span>
-              </div>
-              <div class="hover-arrow" aria-hidden="true">→</div>
-            </button>
-
-            <button class="transport-card hover-lift" data-transit-filter="Station" aria-label="Browse station and bus stop reports">
-              <div class="transit-icon-circle">
-                <!-- Station and bus stop icon -->
-                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="5" y="2.5" width="14" height="17" rx="3"/><path d="M5 9h14M8 6h2M14 6h2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/><path d="m8 19.5-2 2M16 19.5l2 2M9 22h6"/>
-                </svg>
-              </div>
-              <div class="transport-meta">
-                <h3 class="transport-name">Stations & Bus Stops</h3>
-                <span class="transport-count">bus terminals and local stops</span>
-              </div>
-              <div class="hover-arrow" aria-hidden="true">→</div>
-            </button>
-
-            <button class="transport-card hover-lift" data-transit-filter="Auto" aria-label="Browse auto rickshaw reports">
-              <div class="transit-icon-circle">
-                <!-- Auto rickshaw / three-wheeler icon -->
-                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M4 14l1.5-5A2.5 2.5 0 0 1 8 7h5.5a3 3 0 0 1 2.4 1.2L19 13v4H4z"/>
-                  <path d="M7 7V4h6v3M3 14h18M8 11h3M15 11h2"/>
-                  <circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>
-                </svg>
-              </div>
-              <div class="transport-meta">
-                <h3 class="transport-name">Auto Rickshaw</h3>
-                <span class="transport-count">Local three-wheeler rides</span>
-              </div>
-              <div class="hover-arrow" aria-hidden="true">→</div>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Section: Recently Reported Items (Guide Page 3 & 4) -->
-      <section class="section-recent-items">
-        <div class="container">
-          <div class="section-heading-row">
-            <div>
-              <span class="eyebrow-text">LIVE REPOSITORY FEED</span>
-              <h2 class="section-title">Recently Reported Belongings</h2>
-            </div>
-            <div class="heading-actions">
-              <button class="btn btn-outline-brown btn-sm" id="btn-view-all-browse">
-                <span>View All In Directory</span>
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Items Grid container -->
-          <div class="items-grid" id="home-recent-items-grid">
-            <!-- Dynamically populated -->
-          </div>
-        </div>
-      </section>
-
-      <!-- Section: FAQ Accordion (Guide Page 3 & 9) -->
-      <section class="section-faq">
-        <div class="container">
-          <div class="text-center section-intro">
-            <span class="eyebrow-text">GOT QUESTIONS?</span>
-            <h2 class="section-title">Frequently Asked Questions</h2>
-            <p class="section-caption max-w-600">Quick answers regarding reporting items, submitting proof of ownership, and collection.</p>
-          </div>
-
-          <div class="faq-accordion-wrapper" id="faq-accordion">
-            <div class="faq-item">
-              <button class="faq-question-btn" aria-expanded="false">
-                <span>How quickly after losing an item should I submit a report?</span>
-                <span class="faq-chevron">↓</span>
-              </button>
-              <div class="faq-answer-pane">
-                <p>We recommend submitting a report within 24 to 48 hours. Items found by staff or fellow passengers are typically logged into central depot custody within 12 hours of the transit vehicle returning to depot.</p>
-              </div>
-            </div>
-
-            <div class="faq-item">
-              <button class="faq-question-btn" aria-expanded="false">
-                <span>Can I submit a report if I don't have a photo of the item?</span>
-                <span class="faq-chevron">↓</span>
-              </button>
-              <div class="faq-answer-pane">
-                <p>Yes, absolutely! Photos are optional. Detailed descriptions regarding brand, distinctive scuffs, stickers, or color combinations are sufficient for our rule-based engine to propose potential matches.</p>
-              </div>
-            </div>
-
-            <div class="faq-item">
-              <button class="faq-question-btn" aria-expanded="false">
-                <span>How do I prove ownership of a found item?</span>
-                <span class="faq-chevron">↓</span>
-              </button>
-              <div class="faq-answer-pane">
-                <p>When you click "Submit Ownership Claim", you will be asked for private verification proof that only the true owner would know: device lock screen description, receipt, unique interior contents, or identification cards.</p>
-              </div>
-            </div>
-
-            <div class="faq-item">
-              <button class="faq-question-btn" aria-expanded="false">
-                <span>What happens if my claim is rejected? How do I reach human staff?</span>
-                <span class="faq-chevron">↓</span>
-              </button>
-              <div class="faq-answer-pane">
-                <p>If proof is inconclusive, authorized staff record a reason in your claim dossier. You can appeal by providing additional supporting documents or by visiting the central station customer desk with government-issued photo identification.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </section>
-
-    <!-- ================= VIEW 2: BROWSE ITEMS DIRECTORY ================= -->
-    <section class="view-section" id="view-browse">
-      <div class="container page-header-layout">
-        <div class="page-title-group">
-          <span class="eyebrow-text">SEARCHABLE PUBLIC DIRECTORY</span>
-          <h1 class="page-main-heading">Transit Lost & Found Directory</h1>
-          <p class="page-main-sub">Search, filter, and cross-examine registered lost reports and custodial found items across the regional transit grid.</p>
-        </div>
-        <div class="page-header-actions">
-          <button class="btn btn-primary-mustard" id="browse-header-report-btn">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
-            <span>Report Item</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="container browse-content-grid">
-        <!-- Sidebar Filter Controls (Guide Page 4) -->
-        <aside class="filters-sidebar">
-          <div class="filter-panel-card">
-            <div class="filter-panel-header">
-              <div class="filter-header-left">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-                <h3>Filter Criteria</h3>
-              </div>
-              <button class="clear-filters-btn" id="btn-clear-filters">Reset All</button>
-            </div>
-
-            <!-- Filter: Report Type (Lost / Found / All) -->
-            <div class="filter-section-group">
-              <span class="filter-section-title">Report Classification</span>
-              <div class="segmented-control">
-                <button class="segment-btn active" data-filter-type="all">All</button>
-                <button class="segment-btn" data-filter-type="Lost">Lost</button>
-                <button class="segment-btn" data-filter-type="Found">Found</button>
-              </div>
-            </div>
-
-            <!-- Filter: Search Keyword -->
-            <div class="filter-section-group">
-              <span class="filter-section-title">Keyword / Description</span>
-              <div class="filter-input-wrap">
-                <input type="text" id="filter-keyword-input" placeholder="Search keywords, brands..." />
-                <button class="input-clear-btn" id="filter-clear-keyword" style="display:none;">×</button>
-              </div>
-            </div>
-
-            <!-- Filter: Category -->
-            <div class="filter-section-group">
-              <span class="filter-section-title">Item Category</span>
-              <select id="filter-category-select" class="form-select-styled">
-                <option value="all">All Categories</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Bags & Wallets">Bags & Wallets</option>
-                <option value="Documents">Documents & IDs</option>
-                <option value="Accessories">Accessories & Jewelry</option>
-                <option value="Clothing">Clothing & Footwear</option>
-                <option value="Keys">Keys & Keychains</option>
-                <option value="Other">Other Items</option>
-              </select>
-            </div>
-
-            <!-- Filter: Transport Mode -->
-            <div class="filter-section-group">
-              <span class="filter-section-title">Transit Network</span>
-              <select id="filter-transit-select" class="form-select-styled">
-                <option value="all">All Transport</option>
-                <option value="Metro">Metro / Subway</option>
-                <option value="Bus">Public Bus</option>
-                <option value="Train">Regional Train</option>
-                <option value="Station">Station / Hub</option>
-              </select>
-            </div>
-
-            <!-- Filter: Status -->
-            <div class="filter-section-group">
-              <span class="filter-section-title">Item Status</span>
-              <select id="filter-status-select" class="form-select-styled">
-                <option value="all">All Statuses</option>
-                <option value="Open">Open (Active)</option>
-                <option value="Possible Match">Possible Match</option>
-                <option value="Claim Pending">Claim Under Review</option>
-                <option value="Recovered">Recovered / Reunited</option>
-              </select>
-            </div>
-
-            <!-- Filter: Date Range -->
-            <div class="filter-section-group">
-              <span class="filter-section-title">Date Reported</span>
-              <div class="radio-stack">
-                <label class="radio-label-styled">
-                  <input type="radio" name="filter-date-range" value="all" checked>
-                  <span>Any Time</span>
-                </label>
-                <label class="radio-label-styled">
-                  <input type="radio" name="filter-date-range" value="today">
-                  <span>Last 24 Hours</span>
-                </label>
-                <label class="radio-label-styled">
-                  <input type="radio" name="filter-date-range" value="week">
-                  <span>Past 7 Days</span>
-                </label>
-                <label class="radio-label-styled">
-                  <input type="radio" name="filter-date-range" value="month">
-                  <span>Past 30 Days</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        <!-- Main Directory Results Pane -->
-        <section class="results-viewport">
-          <div class="results-toolbar">
-            <div class="results-counter-wrap">
-              <span class="results-count-bold" id="results-count-number">0</span>
-              <span class="results-count-text">reports matched</span>
-            </div>
-
-            <div class="results-sorting-wrap">
-              <label for="sort-by-select">Sort by:</label>
-              <select id="sort-by-select" class="form-select-sm">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="title">Alphabetical (A-Z)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Active Filter Tags Bar -->
-          <div class="active-tags-bar" id="active-tags-container">
-            <!-- Filter pills generated via JS -->
-          </div>
-
-          <!-- Directory Cards Grid -->
-          <div class="items-grid" id="browse-items-grid">
-            <!-- Dynamically injected item cards -->
-          </div>
-
-          <!-- Empty Results State (Guide Page 10) -->
-          <div class="state-empty-container" id="browse-empty-state" style="display:none;">
-            <div class="empty-illustration">
-              <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-            </div>
-            <h3>No Matching Reports Found</h3>
-            <p>We couldn't find items matching your current search parameters. Try expanding your filters or search keywords.</p>
-            <button class="btn btn-primary-mustard" id="empty-state-reset-btn">Reset All Search Filters</button>
-          </div>
         </section>
-      </div>
-    </section>
 
-    <!-- ================= VIEW 3: REPORT LOST / FOUND FORM ================= -->
-    <section class="view-section" id="view-report">
-      <div class="container page-header-layout">
-        <div class="page-title-group">
-          <span class="eyebrow-text">SUBMIT OFFICIAL REPORT</span>
-          <h1 class="page-main-heading">Report Lost or Found Belongings</h1>
-          <p class="page-main-sub">Your report instantly syncs to the Metropolitan Transit Registry and triggers rule-based match scanning.</p>
+        <!-- ================= VIEW 1: HOME PAGE ================= -->
+        <section class="view-section" id="view-home">
+            <!-- Hero Section with Architectural Mustard, Espresso Brown, and Taupe Grey -->
+            <section class="hero-section">
+                <div class="container hero-container">
+                    <div class="hero-left">
+                        <div class="hero-pill-badge">
+                            <span class="pill-dot"></span>
+                            <span>Official Public Transit Recovery Network</span>
+                        </div>
+                        <h1 class="hero-heading">
+                            Lost something on your <span class="highlight-mustard">journey?</span> We’ll help you <span class="highlight-brown">recover it.</span>
+                        </h1>
+                        <p class="hero-subtitle">
+                            Every day, hundreds of personal items are safely recovered across Metro lines, Regional Busses, and Commuter Terminals. Search active reports, get smart AI-assisted matches, and claim your belongings safely.
+                        </p>
+
+                        <!-- Hero Action Buttons -->
+                        <div class="hero-cta-group">
+                            <button class="btn btn-primary-mustard btn-lg hover-glow" id="hero-btn-report">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14" /></svg>
+                                <span>Report Lost / Found</span>
+                            </button>
+                            <button class="btn btn-outline-brown btn-lg" id="hero-btn-browse">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                                <span>Search Live Directory</span>
+                            </button>
+                        </div>
+
+                        <!-- Trust Bar / Key Highlights -->
+                        <div class="hero-trust-bar">
+                            <div class="trust-item">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                                <span>100% Verified Handover</span>
+                            </div>
+                            <div class="trust-item">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                                <span>Sub-24h Match Alerts</span>
+                            </div>
+                            <div class="trust-item">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                                <span>Private & Secure Records</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hero Right: Interactive Quick Search Panel with Architectural Layering -->
+                    <div class="hero-right">
+                        <div class="interactive-search-card hover-lift">
+                            <div class="card-glass-header">
+                                <div class="card-badge-row">
+                                    <span class="status-indicator-tag active">Live Database Sync</span>
+                                    <span class="text-xs text-muted">Rule-Based Matcher v2.4</span>
+                                </div>
+                                <h3 class="card-title-lg">Fast Transit Query</h3>
+                                <p class="card-subtitle-sm">Scan reported belongings across all connected public transport routes.</p>
+                            </div>
+
+                            <form class="hero-quick-search-form" id="hero-search-form">
+                                <div class="form-group-custom">
+                                    <label for="hero-keyword-input">Item Keyword or Brand</label>
+                                    <div class="input-with-icon">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                                        <input type="text" id="hero-keyword-input" placeholder="e.g. Leather wallet, Airpods, Backpack..." />
+                                    </div>
+                                </div>
+
+                                <div class="form-row-2">
+                                    <div class="form-group-custom">
+                                        <label for="hero-category-select">Category</label>
+                                        <select id="hero-category-select">
+                                            <option value="">All Categories</option>
+                                            <option value="Electronics">Electronics</option>
+                                            <option value="Bags & Wallets">Bags, Wallets & Luggage</option>
+                                            <option value="Documents">IDs & Documents</option>
+                                            <option value="Accessories">Jewelry & Accessories</option>
+                                            <option value="Clothing">Clothing & Footwear</option>
+                                            <option value="Keys">Keys & Badges</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group-custom">
+                                        <label for="hero-transit-select">Transport Mode</label>
+                                        <select id="hero-transit-select">
+                                            <option value="">Any Transport</option>
+                                            <option value="Metro">Metro / Underground</option>
+                                            <option value="Bus">City / Express Bus</option>
+                                            <option value="Train">Commuter Train</option>
+                                            <option value="Station">Station / Terminal Hub</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="filter-type-toggles">
+                                    <label class="radio-pill">
+                                        <input type="radio" name="hero-report-type" value="all" checked>
+                                        <span>All Reports</span>
+                                    </label>
+                                    <label class="radio-pill">
+                                        <input type="radio" name="hero-report-type" value="Lost">
+                                        <span>Lost Only</span>
+                                    </label>
+                                    <label class="radio-pill">
+                                        <input type="radio" name="hero-report-type" value="Found">
+                                        <span>Found Only</span>
+                                    </label>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary-mustard btn-block btn-shimmer">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+                                    <span>Search Registered Items</span>
+                                </button>
+                            </form>
+
+                            <!-- Live Stat Snippet -->
+                            <div class="hero-card-footer">
+                                <div class="mini-stat">
+                                    <span class="mini-val" id="mini-stat-matches">89%</span>
+                                    <span class="mini-lbl">High Match Accuracy</span>
+                                </div>
+                                <div class="mini-stat-divider"></div>
+                                <div class="mini-stat">
+                                    <span class="mini-val" id="mini-stat-time">&lt; 36 hrs</span>
+                                    <span class="mini-lbl">Average Custody Match</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: System Performance Live Statistics (Section 2 in Guide) -->
+            <section class="stats-ribbon-section">
+                <div class="container">
+                    <div class="stats-ribbon-card">
+                        <div class="stat-box hover-lift">
+                            <div class="stat-icon-wrapper mustard-tint">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-num counter" id="stat-total-reports">1,482</span>
+                                <span class="stat-desc">Total Reports Registered</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-box hover-lift">
+                            <div class="stat-icon-wrapper brown-tint">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-num counter" id="stat-found-reports">864</span>
+                                <span class="stat-desc">Items Held in Depot Custody</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-box hover-lift">
+                            <div class="stat-icon-wrapper mustard-tint">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-num counter" id="stat-recovered-count">1,120</span>
+                                <span class="stat-desc">Successful Reunited Belongings</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-box hover-lift">
+                            <div class="stat-icon-wrapper grey-tint">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-num counter" id="stat-open-reports">362</span>
+                                <span class="stat-desc">Active Open Inquiries</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="data-source-note">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+                        <span>Live Demonstration Data — Synchronized with Metropolitan Transport Hub Protocol API</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Transport Network Categories (Guide Page 3) -->
+            <section class="section-categories">
+                <div class="container">
+                    <div class="section-heading-row">
+                        <div>
+                            <span class="eyebrow-text">TRANSIT CORRIDORS</span>
+                            <h2 class="section-title">Explore by Transport Mode</h2>
+                        </div>
+                        <p class="section-caption">Filter belongings by where they were misplaced or secured.</p>
+                    </div>
+
+                    <div class="category-grid">
+                        <button class="transport-card hover-lift" data-transit-filter="Metro">
+                            <div class="transit-icon-circle">
+                                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="16" rx="2" /><path d="M4 11h16" /><path d="M12 3v8" /><path d="m8 19-2 3" /><path d="m16 19 2 3" /><circle cx="8" cy="15" r="1" /><circle cx="16" cy="15" r="1" /></svg>
+                            </div>
+                            <div class="transport-meta">
+                                <h3 class="transport-name">Metro / Subway</h3>
+                                <span class="transport-count">Line 1, 2, 4 & Loop Lines</span>
+                            </div>
+                            <div class="hover-arrow">→</div>
+                        </button>
+
+                        <button class="transport-card hover-lift" data-transit-filter="Bus">
+                            <div class="transit-icon-circle">
+                                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2V8a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v9h2" /><circle cx="7" cy="17" r="2" /><path d="M9 17h6" /><circle cx="17" cy="17" r="2" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                            </div>
+                            <div class="transport-meta">
+                                <h3 class="transport-name">Metropolitan Bus</h3>
+                                <span class="transport-count">City, Rapid & Express routes</span>
+                            </div>
+                            <div class="hover-arrow">→</div>
+                        </button>
+
+                        <button class="transport-card hover-lift" data-transit-filter="Train">
+                            <div class="transit-icon-circle">
+                                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="14" rx="2" /><path d="M4 10h16" /><path d="M12 3v7" /><circle cx="8" cy="14" r="1" /><circle cx="16" cy="14" r="1" /><path d="m9 21-2-4" /><path d="m15 21 2-4" /></svg>
+                            </div>
+                            <div class="transport-meta">
+                                <h3 class="transport-name">Regional Train</h3>
+                                <span class="transport-count">Intercity & Suburban Lines</span>
+                            </div>
+                            <div class="hover-arrow">→</div>
+                        </button>
+
+                        <button class="transport-card hover-lift" data-transit-filter="Station">
+                            <div class="transit-icon-circle">
+                                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18" /><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" /><path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4" /><line x1="9" y1="9" x2="9.01" y2="9" /><line x1="15" y1="9" x2="15.01" y2="9" /></svg>
+                            </div>
+                            <div class="transport-meta">
+                                <h3 class="transport-name">Central Stations & Hubs</h3>
+                                <span class="transport-count">Platforms, Waiting Lounges</span>
+                            </div>
+                            <div class="hover-arrow">→</div>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Recently Reported Items (Guide Page 3 & 4) -->
+            <section class="section-recent-items">
+                <div class="container">
+                    <div class="section-heading-row">
+                        <div>
+                            <span class="eyebrow-text">LIVE REPOSITORY FEED</span>
+                            <h2 class="section-title">Recently Reported Belongings</h2>
+                        </div>
+                        <div class="heading-actions">
+                            <button class="btn btn-outline-brown btn-sm" id="btn-view-all-browse">
+                                <span>View All In Directory</span>
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Found / Lost switch -->
+                    <div class="feed-type-switch" id="home-feed-switch" role="tablist" aria-label="Show found or lost items">
+                        <button type="button" class="feed-type-btn active" role="tab" aria-selected="true" data-feed-type="Found">Found Items</button>
+                        <button type="button" class="feed-type-btn" role="tab" aria-selected="false" data-feed-type="Lost">Lost Items</button>
+                    </div>
+
+                    <!-- Items Grid container -->
+                    <div class="items-grid" id="home-recent-items-grid">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: FAQ Accordion (Guide Page 3 & 9) -->
+            <section class="section-faq">
+                <div class="container">
+                    <div class="text-center section-intro">
+                        <span class="eyebrow-text">GOT QUESTIONS?</span>
+                        <h2 class="section-title">Frequently Asked Questions</h2>
+                        <p class="section-caption max-w-600">Quick answers regarding reporting items, submitting proof of ownership, and collection.</p>
+                    </div>
+
+                    <div class="faq-accordion-wrapper" id="faq-accordion">
+                        <div class="faq-item">
+                            <button class="faq-question-btn" aria-expanded="false">
+                                <span>How quickly after losing an item should I submit a report?</span>
+                                <span class="faq-chevron">↓</span>
+                            </button>
+                            <div class="faq-answer-pane">
+                                <p>We recommend submitting a report within 24 to 48 hours. Items found by staff or fellow passengers are typically logged into central depot custody within 12 hours of the transit vehicle returning to depot.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question-btn" aria-expanded="false">
+                                <span>Can I submit a report if I don't have a photo of the item?</span>
+                                <span class="faq-chevron">↓</span>
+                            </button>
+                            <div class="faq-answer-pane">
+                                <p>Yes, absolutely! Photos are optional. Detailed descriptions regarding brand, distinctive scuffs, stickers, or color combinations are sufficient for our rule-based engine to propose potential matches.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question-btn" aria-expanded="false">
+                                <span>How do I prove ownership of a found item?</span>
+                                <span class="faq-chevron">↓</span>
+                            </button>
+                            <div class="faq-answer-pane">
+                                <p>When you click "Submit Ownership Claim", you will be asked for private verification proof that only the true owner would know: device lock screen description, receipt, unique interior contents, or identification cards.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question-btn" aria-expanded="false">
+                                <span>What happens if my claim is rejected? How do I reach human staff?</span>
+                                <span class="faq-chevron">↓</span>
+                            </button>
+                            <div class="faq-answer-pane">
+                                <p>If proof is inconclusive, authorized staff record a reason in your claim dossier. You can appeal by providing additional supporting documents or by visiting the central station customer desk with government-issued photo identification.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- ================= VIEW 2: BROWSE ITEMS DIRECTORY ================= -->
+        <section class="view-section" id="view-browse">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">SEARCHABLE PUBLIC DIRECTORY</span>
+                    <h1 class="page-main-heading">Transit Lost & Found Directory</h1>
+                    <p class="page-main-sub">Search, filter, and cross-examine registered lost reports and custodial found items across the regional transit grid.</p>
+                </div>
+                <div class="page-header-actions">
+                    <button class="btn btn-primary-mustard" id="browse-header-report-btn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14" /></svg>
+                        <span>Report Item</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="container browse-content-grid">
+                <!-- Sidebar Filter Controls (Guide Page 4) -->
+                <aside class="filters-sidebar">
+                    <div class="filter-panel-card">
+                        <div class="filter-panel-header">
+                            <div class="filter-header-left">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" /><line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" /><line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" /><line x1="1" y1="14" x2="7" y2="14" /><line x1="9" y1="8" x2="15" y2="8" /><line x1="17" y1="16" x2="23" y2="16" /></svg>
+                                <h3>Filter Criteria</h3>
+                            </div>
+                            <button class="clear-filters-btn" id="btn-clear-filters">Reset All</button>
+                        </div>
+
+                        <!-- Filter: Report Type (Lost / Found / All) -->
+                        <div class="filter-section-group">
+                            <span class="filter-section-title">Report Classification</span>
+                            <div class="segmented-control">
+                                <button class="segment-btn active" data-filter-type="all">All</button>
+                                <button class="segment-btn" data-filter-type="Lost">Lost</button>
+                                <button class="segment-btn" data-filter-type="Found">Found</button>
+                            </div>
+                        </div>
+
+                        <!-- Filter: Search Keyword -->
+                        <div class="filter-section-group">
+                            <span class="filter-section-title">Keyword / Description</span>
+                            <div class="filter-input-wrap">
+                                <input type="text" id="filter-keyword-input" placeholder="Search keywords, brands..." />
+                                <button class="input-clear-btn" id="filter-clear-keyword" style="display:none;">×</button>
+                            </div>
+                        </div>
+
+                        <!-- Filter: Category -->
+                        <div class="filter-section-group">
+                            <span class="filter-section-title">Item Category</span>
+                            <select id="filter-category-select" class="form-select-styled">
+                                <option value="all">All Categories</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Bags & Wallets">Bags & Wallets</option>
+                                <option value="Documents">Documents & IDs</option>
+                                <option value="Accessories">Accessories & Jewelry</option>
+                                <option value="Clothing">Clothing & Footwear</option>
+                                <option value="Keys">Keys & Keychains</option>
+                                <option value="Other">Other Items</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter: Transport Mode -->
+                        <div class="filter-section-group">
+                            <span class="filter-section-title">Transit Network</span>
+                            <select id="filter-transit-select" class="form-select-styled">
+                                <option value="all">All Transport</option>
+                                <option value="Metro">Metro / Subway</option>
+                                <option value="Bus">Public Bus</option>
+                                <option value="Train">Regional Train</option>
+                                <option value="Station">Station / Hub</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter: Status -->
+                        <div class="filter-section-group">
+                            <span class="filter-section-title">Item Status</span>
+                            <select id="filter-status-select" class="form-select-styled">
+                                <option value="all">All Statuses</option>
+                                <option value="Possible Match">Possible Match</option>
+                                <option value="Claim Pending">Claim Pending</option>
+                                <option value="Recovered">Recovered / Reunited</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter: Date Range -->
+                        <div class="filter-section-group">
+                            <span class="filter-section-title">Date Reported</span>
+                            <div class="radio-stack">
+                                <label class="radio-label-styled">
+                                    <input type="radio" name="filter-date-range" value="all" checked>
+                                    <span>Any Time</span>
+                                </label>
+                                <label class="radio-label-styled">
+                                    <input type="radio" name="filter-date-range" value="today">
+                                    <span>Last 24 Hours</span>
+                                </label>
+                                <label class="radio-label-styled">
+                                    <input type="radio" name="filter-date-range" value="week">
+                                    <span>Past 7 Days</span>
+                                </label>
+                                <label class="radio-label-styled">
+                                    <input type="radio" name="filter-date-range" value="month">
+                                    <span>Past 30 Days</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Directory Results Pane -->
+                <section class="results-viewport">
+                    <div class="results-toolbar">
+                        <div class="results-counter-wrap">
+                            <span class="results-count-bold" id="results-count-number">0</span>
+                            <span class="results-count-text">reports matched</span>
+                        </div>
+
+                        <div class="results-sorting-wrap">
+                            <label for="sort-by-select">Sort by:</label>
+                            <select id="sort-by-select" class="form-select-sm">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="title">Alphabetical (A-Z)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Active Filter Tags Bar -->
+                    <div class="active-tags-bar" id="active-tags-container">
+                        <!-- Filter pills generated via JS -->
+                    </div>
+
+                    <!-- Directory Cards Grid -->
+                    <div class="items-grid" id="browse-items-grid">
+                        <!-- Dynamically injected item cards -->
+                    </div>
+
+                    <!-- Empty Results State (Guide Page 10) -->
+                    <div class="state-empty-container" id="browse-empty-state" style="display:none;">
+                        <div class="empty-illustration">
+                            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                        </div>
+                        <h3>No Matching Reports Found</h3>
+                        <p>We couldn't find items matching your current search parameters. Try expanding your filters or search keywords.</p>
+                        <button class="btn btn-primary-mustard" id="empty-state-reset-btn">Reset All Search Filters</button>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 3: REPORT LOST / FOUND FORM ================= -->
+        <section class="view-section" id="view-report">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">SUBMIT OFFICIAL REPORT</span>
+                    <h1 class="page-main-heading">Report Lost or Found Belongings</h1>
+                    <p class="page-main-sub">Your report instantly syncs to the Metropolitan Transit Registry and triggers rule-based match scanning.</p>
+                </div>
+            </div>
+
+            <div class="container report-form-container">
+                <!-- Interactive Form Card -->
+                <div class="report-card hover-glow">
+                    <!-- Form Mode Switcher Tabs (Lost vs Found) -->
+                    <div class="report-type-tabs">
+                        <button class="tab-type-btn active" id="tab-report-lost" data-mode="Lost">
+                            <div class="tab-btn-icon">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M16 16s-1.5-2-4-2-4 2-4 2" /><line x1="9" y1="9" x2="9.01" y2="9" /><line x1="15" y1="9" x2="15.01" y2="9" /></svg>
+                            </div>
+                            <div class="tab-btn-text">
+                                <strong>I Lost Something</strong>
+                                <span>Misplaced during journey</span>
+                            </div>
+                        </button>
+
+                        <button class="tab-type-btn" id="tab-report-found" data-mode="Found">
+                            <div class="tab-btn-icon">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M8 14s1.5 2 4 2 4-2 4-2" /><line x1="9" y1="9" x2="9.01" y2="9" /><line x1="15" y1="9" x2="15.01" y2="9" /></svg>
+                            </div>
+                            <div class="tab-btn-text">
+                                <strong>I Found Something</strong>
+                                <span>Secured item to return</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- The Form -->
+                    <form class="actual-report-form" id="transit-report-form" novalidate>
+                        <input type="hidden" id="form-report-type" value="Lost" />
+
+                        <!-- Step 1: Item Details -->
+                        <div class="form-section-block">
+                            <div class="section-block-header">
+                                <span class="block-step-pill">1</span>
+                                <div>
+                                    <h4>Item Identification</h4>
+                                    <p>Describe physical traits, brand, colors, and distinguishing markings.</p>
+                                </div>
+                            </div>
+
+                            <div class="form-grid-2">
+                                <div class="form-group-custom">
+                                    <label for="form-item-name">Item Name / Title <span class="required-star">*</span></label>
+                                    <input type="text" id="form-item-name" placeholder="e.g. Vintage Leather Messenger Bag, Apple AirPods Pro" required />
+                                    <span class="input-error-msg" id="err-item-name">Please provide a descriptive item title</span>
+                                </div>
+
+                                <div class="form-group-custom">
+                                    <label for="form-category">Category <span class="required-star">*</span></label>
+                                    <select id="form-category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="Electronics">Electronics</option>
+                                        <option value="Bags & Wallets">Bags & Wallets</option>
+                                        <option value="Documents">Documents & IDs</option>
+                                        <option value="Accessories">Accessories & Jewelry</option>
+                                        <option value="Clothing">Clothing & Footwear</option>
+                                        <option value="Keys">Keys & Keychains</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <span class="input-error-msg" id="err-category">Please choose an item category</span>
+                                </div>
+                            </div>
+
+                            <div class="form-grid-2">
+                                <div class="form-group-custom">
+                                    <label for="form-color">Primary Colour(s) <span class="required-star">*</span></label>
+                                    <input type="text" id="form-color" placeholder="e.g. Brown leather with brass buckles, Mustard yellow trim" required />
+                                    <span class="input-error-msg" id="err-color">Color helps our match engine connect reports</span>
+                                </div>
+
+                                <div class="form-group-custom">
+                                    <label for="form-brand">Brand / Model (if known)</label>
+                                    <input type="text" id="form-brand" placeholder="e.g. Sony, Bellroy, Apple, Ray-Ban" />
+                                </div>
+                            </div>
+
+                            <div class="form-group-custom">
+                                <label for="form-description">Detailed Description <span class="required-star">*</span></label>
+                                <textarea id="form-description" rows="3" placeholder="Provide visible characteristics, surface scratches, stickers, or distinctive marks. (DO NOT enter private passwords or credit card numbers here)." required></textarea>
+                                <span class="input-error-msg" id="err-description">Please enter at least 15 characters of description</span>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Journey & Transit Details -->
+                        <div class="form-section-block">
+                            <div class="section-block-header">
+                                <span class="block-step-pill">2</span>
+                                <div>
+                                    <h4>Transit Corridor & Date</h4>
+                                    <p>Specify the transport mode, route, line number, and stops.</p>
+                                </div>
+                            </div>
+
+                            <div class="form-grid-3">
+                                <div class="form-group-custom">
+                                    <label for="form-transit-type">Transport Mode <span class="required-star">*</span></label>
+                                    <select id="form-transit-type" required>
+                                        <option value="">Select Mode</option>
+                                        <option value="Metro">Metro / Subway</option>
+                                        <option value="Bus">City / Express Bus</option>
+                                        <option value="Train">Regional Train</option>
+                                        <option value="Station">Station / Terminal Hub</option>
+                                    </select>
+                                    <span class="input-error-msg" id="err-transit-type">Please select transport mode</span>
+                                </div>
+
+                                <div class="form-group-custom">
+                                    <label for="form-route">Route / Line / Vehicle # <span class="required-star">*</span></label>
+                                    <input type="text" id="form-route" placeholder="e.g. Metro Line 2, Bus #42, Carriage 4" required />
+                                    <span class="input-error-msg" id="err-route">Please specify the route or carriage number</span>
+                                </div>
+
+                                <div class="form-group-custom">
+                                    <label for="form-date">Date Incident Occurred <span class="required-star">*</span></label>
+                                    <input type="date" id="form-date" required />
+                                    <span class="input-error-msg" id="err-date">Please pick a valid date</span>
+                                </div>
+                            </div>
+
+                            <div class="form-grid-2">
+                                <div class="form-group-custom">
+                                    <label for="form-location">Boarding / Finding Location <span class="required-star">*</span></label>
+                                    <input type="text" id="form-location" placeholder="e.g. Grand Central Station Platform 3, or Boarded at 5th Ave" required />
+                                    <span class="input-error-msg" id="err-location">Specify the station, stop, or terminal</span>
+                                </div>
+
+                                <div class="form-group-custom">
+                                    <label for="form-time-approx">Approximate Time</label>
+                                    <input type="text" id="form-time-approx" placeholder="e.g. Around 08:45 AM (Morning commute)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Custody & Contact (Dynamic according to Lost vs Found) -->
+                        <div class="form-section-block">
+                            <div class="section-block-header">
+                                <span class="block-step-pill">3</span>
+                                <div>
+                                    <h4 id="custody-block-title">Custody & Contact Reference</h4>
+                                    <p id="custody-block-sub">Verification details to keep your submission secure.</p>
+                                </div>
+                            </div>
+
+                            <div class="form-grid-3" id="custody-contact-grid">
+                                <div class="form-group-custom" id="reporter-role-group">
+                                    <label for="form-reporter-role">Person Reporting <span class="required-star">*</span></label>
+                                    <select id="form-reporter-role">
+                                        <option value="Passenger">Passenger</option>
+                                        <option value="Conductor">Conductor Person</option>
+                                        <option value="Driver">Bus / Train Driver</option>
+                                        <option value="Station Staff">Station Staff</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group-custom">
+                                    <label for="form-reporter-name" id="reporter-name-label">Reporter Full Name <span class="required-star">*</span></label>
+                                    <input type="text" id="form-reporter-name" placeholder="Your full name" required />
+                                    <span class="input-error-msg" id="err-reporter-name">Name is required for ownership matching</span>
+                                </div>
+
+                                <div class="form-group-custom">
+                                    <label for="form-reporter-email">Contact Email <span class="required-star">*</span></label>
+                                    <input type="email" id="form-reporter-email" placeholder="you@email.com (kept private)" required />
+                                    <span class="input-error-msg" id="err-reporter-email">Valid email required for match notifications</span>
+                                </div>
+                            </div>
+
+                            <!-- Found-specific extra field -->
+                            <div class="form-group-custom" id="found-only-fields" style="display: none;">
+                                <label for="form-custody-location">Where is this item currently held / handed to?</label>
+                                <select id="form-custody-location">
+                                    <option value="Handed to Conductor Person">Handed over directly to Conductor Person</option>
+                                    <option value="Handed to Station Custody Desk">Handed over to Station Lost & Found Office</option>
+                                    <option value="In Personal Custody (Available for transfer)">Currently in my possession (ready to surrender to staff)</option>
+                                    <option value="With Transit Security Officer">Handed directly to onboard security</option>
+                                </select>
+                            </div>
+
+                            <!-- Photo Mock Uploader -->
+                            <div class="form-group-custom">
+                                <label>Optional Photo / Snapshot</label>
+                                <div class="dropzone-area" id="dropzone-area">
+                                    <input type="file" id="form-photo-upload" accept="image/*" class="dropzone-input" />
+                                    <div class="dropzone-content" id="dropzone-content">
+                                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                                        <span>Click or drag a photo here (PNG, JPG)</span>
+                                        <span class="dropzone-note">Helps passengers verify visual likeness</span>
+                                    </div>
+                                    <div class="dropzone-preview" id="dropzone-preview" style="display:none;">
+                                        <img id="dropzone-img" src="" alt="Item Preview">
+                                        <button type="button" class="dropzone-remove-btn" id="dropzone-remove">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button with Hover Glow & Loading State -->
+                        <div class="form-action-row">
+                            <button type="submit" class="btn btn-primary-mustard btn-lg hover-glow" id="form-submit-btn">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                <span id="btn-submit-text">Register Report & Run Matcher</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-brown btn-lg" id="btn-cancel-report">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 4: MY DASHBOARD & CLAIMS ================= -->
+        <section class="view-section" id="view-dashboard">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">PASSENGER PORTAL</span>
+                    <h1 class="page-main-heading">My Transit Reports & Claims</h1>
+                    <p class="page-main-sub">Track real-time resolution status, review automatic match candidates, and view staff verification vouchers.</p>
+                </div>
+                <div class="page-header-actions">
+                    <button class="btn btn-primary-mustard" id="dash-new-report-btn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14" /></svg>
+                        <span>File New Report</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="container dashboard-container">
+                <!-- Dashboard KPI Summary Cards -->
+                <div class="dash-kpi-grid">
+                    <div class="dash-kpi-card hover-lift">
+                        <div class="kpi-icon-box mustard">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        </div>
+                        <div class="kpi-body">
+                            <span class="kpi-num" id="dash-stat-my-reports">3</span>
+                            <span class="kpi-lbl">My Active Reports</span>
+                        </div>
+                    </div>
+
+                    <div class="dash-kpi-card hover-lift">
+                        <div class="kpi-icon-box brown">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                        </div>
+                        <div class="kpi-body">
+                            <span class="kpi-num" id="dash-stat-pending-claims">2</span>
+                            <span class="kpi-lbl">Claims Under Review</span>
+                        </div>
+                    </div>
+
+                    <div class="dash-kpi-card hover-lift">
+                        <div class="kpi-icon-box mustard">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        </div>
+                        <div class="kpi-body">
+                            <span class="kpi-num" id="dash-stat-matches-found">4</span>
+                            <span class="kpi-lbl">System Match Suggestions</span>
+                        </div>
+                    </div>
+
+                    <div class="dash-kpi-card hover-lift">
+                        <div class="kpi-icon-box grey">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                        </div>
+                        <div class="kpi-body">
+                            <span class="kpi-num" id="dash-stat-recovered">1</span>
+                            <span class="kpi-lbl">Successfully Handed Over</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Tabs: My Reports / My Claims / Notifications -->
+                <div class="dashboard-tabs-bar">
+                    <button class="dash-tab-btn active" data-dash-tab="reports">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
+                        <span>My Submitted Reports</span>
+                    </button>
+                    <button class="dash-tab-btn" data-dash-tab="claims">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                        <span>My Ownership Claims</span>
+                    </button>
+                    <button class="dash-tab-btn" data-dash-tab="matches">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /><path d="M11 8v6M8 11h6" /></svg>
+                        <span>AI Potential Matches (<span id="tab-matches-count">4</span>)</span>
+                    </button>
+                </div>
+
+                <!-- Dash Tab 1: My Reports -->
+                <div class="dash-pane active" id="pane-dash-reports">
+                    <div class="dash-list-wrapper" id="dash-my-reports-list">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Dash Tab 2: My Claims -->
+                <div class="dash-pane" id="pane-dash-claims">
+                    <div class="dash-list-wrapper" id="dash-my-claims-list">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Dash Tab 3: Matches -->
+                <div class="dash-pane" id="pane-dash-matches">
+                    <div class="dash-matches-grid" id="dash-matches-grid">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 5: FAQ & SUPPORT ================= -->
+        <section class="view-section" id="view-faq">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">TRANSIT AUTHORITY SUPPORT</span>
+                    <h1 class="page-main-heading">Passenger Knowledge Base & Contact</h1>
+                    <p class="page-main-sub">BackToyou operates across 18 terminal desks, providing verified handovers and passenger support.</p>
+                </div>
+            </div>
+
+            <div class="container faq-contact-grid">
+                <div class="faq-left-col">
+                    <div class="faq-block-card hover-lift">
+                        <h3>Reporting Guidelines</h3>
+                        <p>Always specify line direction (e.g. Inbound vs Outbound) and approximate car number if known. Never list sensitive payment card PINs or master passwords in report descriptions.</p>
+                    </div>
+
+                    <div class="faq-block-card hover-lift">
+                        <h3>Custody Storage Durations</h3>
+                        <p>Found property is stored in climate-controlled station holding vaults for 90 days. High-value electronics and wallets are audited weekly by transit security officers.</p>
+                    </div>
+
+                    <div class="faq-block-card hover-lift">
+                        <h3>Collection Protocol</h3>
+                        <p>To release an item from station custody, passengers must present their digital Approved Claim QR Code or Claim Reference ID along with a government-issued photo ID.</p>
+                    </div>
+                </div>
+
+                <div class="contact-form-card hover-lift">
+                    <div class="contact-header">
+                        <h3>Contact Central Transit Lost Property Desk</h3>
+                        <p>Our passenger support coordinators respond within 2-4 business hours.</p>
+                    </div>
+
+                    <form class="contact-form" id="contact-support-form">
+                        <div class="form-group-custom">
+                            <label for="contact-name">Your Full Name</label>
+                            <input type="text" id="contact-name" placeholder="John Doe" required />
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="contact-email">Email Address</label>
+                            <input type="email" id="contact-email" placeholder="john@example.com" required />
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="contact-topic">Inquiry Type</label>
+                            <select id="contact-topic">
+                                <option value="claim-status">Checking Claim Review Status</option>
+                                <option value="pickup-appointment">Scheduling Station Depot Pickup</option>
+                                <option value="urgent-passport">Urgent Document / Passport Loss</option>
+                                <option value="other">General Transit Question</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="contact-message">Message</label>
+                            <textarea id="contact-message" rows="4" placeholder="Include your reference tracking ID if applicable..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-mustard btn-block hover-glow">
+                            <span>Send Message to Custody Office</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW: MY PROFILE (passenger) ================= -->
+        <section class="view-section" id="view-profile">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">PASSENGER PORTAL</span>
+                    <h1 class="page-main-heading">My Profile</h1>
+                    <p class="page-main-sub">Keep your contact details up to date so staff can reach you when an item is matched.</p>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="profile-card">
+                    <div class="profile-avatar-col">
+                        <div class="avatar-initials avatar-lg" id="profile-avatar" aria-label="Profile picture">?</div>
+                        <p class="profile-avatar-note">Your picture is created automatically from your name.</p>
+                    </div>
+
+                    <form class="profile-form" id="form-profile" novalidate>
+                        <div class="form-group-custom">
+                            <label for="profile-name">Full Name <span class="required-star">*</span></label>
+                            <input type="text" id="profile-name" placeholder="Your full name" maxlength="60" autocomplete="name" />
+                            <span class="input-error-msg" id="err-profile-name">Please enter your name</span>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="profile-email">Email</label>
+                            <input type="email" id="profile-email" readonly />
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="profile-phone">Phone Number</label>
+                            <input type="tel" id="profile-phone" placeholder="e.g. +91 98765 43210" maxlength="20" autocomplete="tel" />
+                            <span class="input-error-msg" id="err-profile-phone">Enter a valid phone number (7–15 digits)</span>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="profile-address">Address</label>
+                            <textarea id="profile-address" rows="3" placeholder="House / street, area, city, PIN code" maxlength="200" autocomplete="street-address"></textarea>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button type="submit" class="btn btn-primary-mustard">Save Profile</button>
+                            <button type="button" class="btn btn-outline-brown" id="btn-profile-cancel">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= STAFF VIEW: DASHBOARD ================= -->
+        <section class="view-section" id="view-staff-home">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">STAFF PORTAL</span>
+                    <h1 class="page-main-heading" id="staff-greeting">Staff Operations Desk</h1>
+                    <p class="page-main-sub" id="staff-subline"></p>
+                </div>
+            </div>
+
+            <div class="container dashboard-container">
+                <div class="staff-kpi-grid" id="staff-kpis"></div>
+
+                <div class="staff-home-grid">
+                    <div class="staff-stack">
+                        <div class="staff-panel">
+                            <div class="staff-panel-head">
+                                <h3>Claims awaiting verification</h3>
+                                <span class="staff-count-pill" id="staff-claims-count">0</span>
+                            </div>
+                            <div id="staff-claims-queue"></div>
+                        </div>
+
+                        <div class="staff-panel">
+                            <div class="staff-panel-head">
+                                <h3>Recently received items</h3>
+                                <button type="button" class="staff-link-btn" data-view-link="staff-inventory">Open inventory →</button>
+                            </div>
+                            <div id="staff-recent-intake"></div>
+                        </div>
+                    </div>
+
+                    <div class="staff-stack">
+                        <div class="staff-panel">
+                            <div class="staff-panel-head">
+                                <h3>Suggested matches</h3>
+                                <button type="button" class="staff-link-btn" data-view-link="staff-matching">View all →</button>
+                            </div>
+                            <div id="staff-match-preview"></div>
+                        </div>
+
+                        <div class="staff-panel">
+                            <div class="staff-panel-head">
+                                <h3>Items by custody point</h3>
+                            </div>
+                            <div id="staff-custody-bars"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= STAFF VIEW: MANAGE INVENTORY ================= -->
+        <section class="view-section" id="view-staff-inventory">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">STAFF PORTAL</span>
+                    <h1 class="page-main-heading">Manage Inventory</h1>
+                    <p class="page-main-sub">Every item and report in the system. Search, filter and check custody locations.</p>
+                </div>
+            </div>
+
+            <div class="container dashboard-container">
+                <div class="staff-toolbar">
+                    <input type="search" id="staff-inv-search" class="staff-search" placeholder="Search by item, reference, route or location…" aria-label="Search inventory" />
+                    <div class="feed-type-switch staff-type-switch" id="staff-inv-type" role="tablist" aria-label="Item type">
+                        <button type="button" class="feed-type-btn active" data-inv-type="all">All</button>
+                        <button type="button" class="feed-type-btn" data-inv-type="Found">Found</button>
+                        <button type="button" class="feed-type-btn" data-inv-type="Lost">Lost</button>
+                    </div>
+                    <select id="staff-inv-status" class="form-select-styled staff-select" aria-label="Filter by status">
+                        <option value="all">All statuses</option>
+                        <option value="Claim Pending">Claim Pending</option>
+                        <option value="Possible Match">Possible Match</option>
+                        <option value="Recovered">Recovered</option>
+                    </select>
+                    <select id="staff-inv-custody" class="form-select-styled staff-select" aria-label="Filter by custody point"></select>
+                </div>
+
+                <div class="admin-table-card">
+                    <div class="admin-card-header">
+                        <h3>Inventory</h3>
+                        <span class="admin-pill-note" id="staff-inv-count">0 items</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="admin-table staff-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Custody point</th>
+                                    <th>Reported</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-inv-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= STAFF VIEW: DIRECT MATCHING ================= -->
+        <section class="view-section" id="view-staff-matching">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">STAFF PORTAL</span>
+                    <h1 class="page-main-heading">Direct Matching</h1>
+                    <p class="page-main-sub">The system pairs lost reports with items held in custody. Confirm a good match to notify the passenger, or dismiss a wrong one.</p>
+                </div>
+                <div class="page-header-actions">
+                    <select id="staff-match-min" class="form-select-styled staff-select" aria-label="Minimum match score">
+                        <option value="0">All scores</option>
+                        <option value="70">70% and above</option>
+                        <option value="90">90% and above</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="container dashboard-container">
+                <div class="staff-match-summary" id="staff-match-summary"></div>
+                <div class="staff-match-grid" id="staff-match-grid"></div>
+            </div>
+        </section>
+
+        <!-- ================= STAFF VIEW: DISPOSAL MANAGEMENT ================= -->
+        <section class="view-section" id="view-staff-disposal">
+            <div class="container page-header-layout">
+                <div class="page-title-group">
+                    <span class="eyebrow-text">STAFF PORTAL</span>
+                    <h1 class="page-main-heading">Disposal Management</h1>
+                    <p class="page-main-sub">Unclaimed property that has passed the 90-day holding period. Dispose of it, or extend the hold by 30 days.</p>
+                </div>
+            </div>
+
+            <div class="container dashboard-container">
+                <div class="staff-kpi-grid cols-4" id="staff-disposal-stats"></div>
+
+                <div class="staff-toolbar">
+                    <select id="staff-disp-filter" class="form-select-styled staff-select" aria-label="Filter by disposal status">
+                        <option value="all">All items</option>
+                        <option value="Due for Disposal">Due for disposal</option>
+                        <option value="Hold Extended">Hold extended</option>
+                        <option value="Disposed">Disposed</option>
+                    </select>
+                </div>
+
+                <div class="admin-table-card">
+                    <div class="admin-card-header">
+                        <h3>Unclaimed property past the holding period</h3>
+                        <span class="admin-pill-note">90-day retention policy</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="admin-table staff-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Category</th>
+                                    <th>Held at</th>
+                                    <th>Days held</th>
+                                    <th>Disposal method</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-disposal-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= MODAL 1: ITEM DETAILS & POSSIBLE MATCHES ================= -->
+    <!-- ================= MODAL: STAFF CLAIM REVIEW ================= -->
+    <div class="modal-overlay" id="modal-claim-review" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content hover-lift">
+                <div class="modal-header">
+                    <div class="modal-header-meta">
+                        <span class="report-type-badge-lg found">CLAIM</span>
+                        <span class="modal-ref-id" id="review-claim-id">CLM-0000</span>
+                    </div>
+                    <button class="modal-close-btn" id="modal-claim-review-close" type="button" aria-label="Close claim review">&times;</button>
+                </div>
+                <div class="modal-body" id="review-claim-body"></div>
+                <div class="modal-footer review-footer" id="review-claim-footer"></div>
+            </div>
         </div>
-      </div>
-
-      <div class="container report-form-container">
-        <!-- Interactive Form Card -->
-        <div class="report-card hover-glow">
-          <!-- Form Mode Switcher Tabs (Lost vs Found) -->
-          <div class="report-type-tabs">
-            <button class="tab-type-btn active" id="tab-report-lost" data-mode="Lost">
-              <div class="tab-btn-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-              </div>
-              <div class="tab-btn-text">
-                <strong>I Lost Something</strong>
-                <span>Misplaced during journey</span>
-              </div>
-            </button>
-
-            <button class="tab-type-btn" id="tab-report-found" data-mode="Found">
-              <div class="tab-btn-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-              </div>
-              <div class="tab-btn-text">
-                <strong>I Found Something</strong>
-                <span>Secured item to return</span>
-              </div>
-            </button>
-          </div>
-
-          <!-- The Form -->
-          <form class="actual-report-form" id="transit-report-form" novalidate>
-            <input type="hidden" id="form-report-type" value="Lost" />
-
-            <!-- Step 1: Item Details -->
-            <div class="form-section-block">
-              <div class="section-block-header">
-                <span class="block-step-pill">1</span>
-                <div>
-                  <h4>Item Identification</h4>
-                  <p>Describe physical traits, brand, colors, and distinguishing markings.</p>
-                </div>
-              </div>
-
-              <div class="form-grid-2">
-                <div class="form-group-custom">
-                  <label for="form-item-name">Item Name / Title <span class="required-star">*</span></label>
-                  <input type="text" id="form-item-name" placeholder="e.g. Vintage Leather Messenger Bag, Apple AirPods Pro" required />
-                  <span class="input-error-msg" id="err-item-name">Please provide a descriptive item title</span>
-                </div>
-
-                <div class="form-group-custom">
-                  <label for="form-category">Category <span class="required-star">*</span></label>
-                  <select id="form-category" required>
-                    <option value="">Select Category</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Bags & Wallets">Bags & Wallets</option>
-                    <option value="Documents">Documents & IDs</option>
-                    <option value="Accessories">Accessories & Jewelry</option>
-                    <option value="Clothing">Clothing & Footwear</option>
-                    <option value="Keys">Keys & Keychains</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  <span class="input-error-msg" id="err-category">Please choose an item category</span>
-                </div>
-              </div>
-
-              <div class="form-grid-2">
-                <div class="form-group-custom">
-                  <label for="form-color">Primary Colour(s) <span class="required-star">*</span></label>
-                  <input type="text" id="form-color" placeholder="e.g. Brown leather with brass buckles, Mustard yellow trim" required />
-                  <span class="input-error-msg" id="err-color">Color helps our match engine connect reports</span>
-                </div>
-
-                <div class="form-group-custom">
-                  <label for="form-brand">Brand / Model (if known)</label>
-                  <input type="text" id="form-brand" placeholder="e.g. Sony, Bellroy, Apple, Ray-Ban" />
-                </div>
-              </div>
-
-              <div class="form-group-custom">
-                <label for="form-description">Detailed Description <span class="required-star">*</span></label>
-                <textarea id="form-description" rows="3" placeholder="Provide visible characteristics, surface scratches, stickers, or distinctive marks. (DO NOT enter private passwords or credit card numbers here)." required></textarea>
-                <span class="input-error-msg" id="err-description">Please enter at least 15 characters of description</span>
-              </div>
-            </div>
-
-            <!-- Step 2: Journey & Transit Details -->
-            <div class="form-section-block">
-              <div class="section-block-header">
-                <span class="block-step-pill">2</span>
-                <div>
-                  <h4>Transit Corridor & Date</h4>
-                  <p>Specify the transport mode, route, line number, and stops.</p>
-                </div>
-              </div>
-
-              <div class="form-grid-3">
-                <div class="form-group-custom">
-                  <label for="form-transit-type">Transport Mode <span class="required-star">*</span></label>
-                  <select id="form-transit-type" required>
-                    <option value="">Select Mode</option>
-                    <option value="Metro">Metro / Subway</option>
-                    <option value="Bus">City / Express Bus</option>
-                    <option value="Train">Regional Train</option>
-                    <option value="Station">Station / Terminal Hub</option>\n                      <option value="Auto">Auto Rickshaw</option>
-                  </select>
-                  <span class="input-error-msg" id="err-transit-type">Please select transport mode</span>
-                </div>
-
-                <div class="form-group-custom">
-                  <label for="form-route">Route / Line / Vehicle # <span class="required-star">*</span></label>
-                  <input type="text" id="form-route" placeholder="e.g. Metro Line 2, Bus #42, Carriage 4" required />
-                  <span class="input-error-msg" id="err-route">Please specify the route or carriage number</span>
-                </div>
-
-                <div class="form-group-custom">
-                  <label for="form-date">Date Incident Occurred <span class="required-star">*</span></label>
-                  <input type="date" id="form-date" required />
-                  <span class="input-error-msg" id="err-date">Please pick a valid date</span>
-                </div>
-              </div>
-
-              <div class="form-grid-2">
-                <div class="form-group-custom">
-                  <label for="form-location">Boarding / Finding Location <span class="required-star">*</span></label>
-                  <input type="text" id="form-location" placeholder="e.g. Grand Central Station Platform 3, or Boarded at 5th Ave" required />
-                  <span class="input-error-msg" id="err-location">Specify the station, stop, or terminal</span>
-                </div>
-
-                <div class="form-group-custom">
-                  <label for="form-time-approx">Approximate Time</label>
-                  <input type="text" id="form-time-approx" placeholder="e.g. Around 08:45 AM (Morning commute)" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Step 3: Custody & Contact (Dynamic according to Lost vs Found) -->
-            <div class="form-section-block">
-              <div class="section-block-header">
-                <span class="block-step-pill">3</span>
-                <div>
-                  <h4 id="custody-block-title">Custody & Contact Reference</h4>
-                  <p id="custody-block-sub">Verification details to keep your submission secure.</p>
-                </div>
-              </div>
-
-              <div class="form-grid-3">
-                <div class="form-group-custom">
-                  <label for="form-reporter-role">Person Reporting <span class="required-star">*</span></label>
-                  <select id="form-reporter-role">
-                    <option value="Passenger">Passenger</option>
-                    <option value="Conductor">Conductor Person</option>
-                    <option value="Driver">Bus / Train Driver</option>
-                    <option value="Station Staff">Station Staff</option>
-                  </select>
-                </div>
-
-                <div class="form-group-custom">
-                  <label for="form-reporter-name">Reporter Full Name <span class="required-star">*</span></label>
-                  <input type="text" id="form-reporter-name" placeholder="Your full name" required />
-                  <span class="input-error-msg" id="err-reporter-name">Name is required for ownership matching</span>
-                </div>
-
-                <div class="form-group-custom">
-                  <label for="form-reporter-email">Contact Email <span class="required-star">*</span></label>
-                  <input type="email" id="form-reporter-email" placeholder="you@email.com (kept private)" required />
-                  <span class="input-error-msg" id="err-reporter-email">Valid email required for match notifications</span>
-                </div>
-              </div>
-
-              <!-- Found-specific extra field -->
-              <div class="form-group-custom" id="found-only-fields" style="display: none;">
-                <label for="form-custody-location">Where is this item currently held / handed to?</label>
-                <select id="form-custody-location">
-                  <option value="Handed to Conductor Person">Handed over directly to Conductor Person</option>
-                  <option value="Handed to Station Custody Desk">Handed over to Station Lost & Found Office</option>
-                  <option value="In Personal Custody (Available for transfer)">Currently in my possession (ready to surrender to staff)</option>
-                  <option value="With Transit Security Officer">Handed directly to onboard security</option>
-                </select>
-              </div>
-
-              <!-- Photo Mock Uploader -->
-              <div class="form-group-custom">
-                <label>Optional Photo / Snapshot</label>
-                <div class="dropzone-area" id="dropzone-area">
-                  <input type="file" id="form-photo-upload" accept="image/*" class="dropzone-input" />
-                  <div class="dropzone-content" id="dropzone-content">
-                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    <span>Click or drag a photo here (PNG, JPG)</span>
-                    <span class="dropzone-note">Helps passengers verify visual likeness</span>
-                  </div>
-                  <div class="dropzone-preview" id="dropzone-preview" style="display:none;">
-                    <img id="dropzone-img" src="" alt="Item Preview">
-                    <button type="button" class="dropzone-remove-btn" id="dropzone-remove">Remove</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Submit Button with Hover Glow & Loading State -->
-            <div class="form-action-row">
-              <button type="submit" class="btn btn-primary-mustard btn-lg hover-glow" id="form-submit-btn">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                <span id="btn-submit-text">Register Report & Run Matcher</span>
-              </button>
-              <button type="button" class="btn btn-outline-brown btn-lg" id="btn-cancel-report">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= VIEW 4: MY DASHBOARD & CLAIMS ================= -->
-    <section class="view-section" id="view-dashboard">
-      <div class="container page-header-layout">
-        <div class="page-title-group">
-          <span class="eyebrow-text">PASSENGER PORTAL</span>
-          <h1 class="page-main-heading">My Transit Reports & Claims</h1>
-          <p class="page-main-sub">Track real-time resolution status, review automatic match candidates, and view staff verification vouchers.</p>
-        </div>
-        <div class="page-header-actions">
-          <button class="btn btn-primary-mustard" id="dash-new-report-btn">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
-            <span>File New Report</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="container dashboard-container">
-        <!-- Dashboard KPI Summary Cards -->
-        <div class="dash-kpi-grid">
-          <div class="dash-kpi-card hover-lift">
-            <div class="kpi-icon-box mustard">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-            </div>
-            <div class="kpi-body">
-              <span class="kpi-num" id="dash-stat-my-reports">3</span>
-              <span class="kpi-lbl">My Active Reports</span>
-            </div>
-          </div>
-
-          <div class="dash-kpi-card hover-lift">
-            <div class="kpi-icon-box brown">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-            </div>
-            <div class="kpi-body">
-              <span class="kpi-num" id="dash-stat-pending-claims">2</span>
-              <span class="kpi-lbl">Claims Under Review</span>
-            </div>
-          </div>
-
-          <div class="dash-kpi-card hover-lift">
-            <div class="kpi-icon-box mustard">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            </div>
-            <div class="kpi-body">
-              <span class="kpi-num" id="dash-stat-matches-found">4</span>
-              <span class="kpi-lbl">System Match Suggestions</span>
-            </div>
-          </div>
-
-          <div class="dash-kpi-card hover-lift">
-            <div class="kpi-icon-box grey">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
-            <div class="kpi-body">
-              <span class="kpi-num" id="dash-stat-recovered">1</span>
-              <span class="kpi-lbl">Successfully Handed Over</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dashboard Tabs: My Reports / My Claims / Notifications -->
-        <div class="dashboard-tabs-bar">
-          <button class="dash-tab-btn active" data-dash-tab="reports">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
-            <span>My Submitted Reports</span>
-          </button>
-          <button class="dash-tab-btn" data-dash-tab="claims">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>My Ownership Claims</span>
-          </button>
-          <button class="dash-tab-btn" data-dash-tab="matches">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
-            <span>AI Potential Matches (<span id="tab-matches-count">4</span>)</span>
-          </button>
-        </div>
-
-        <!-- Dash Tab 1: My Reports -->
-        <div class="dash-pane active" id="pane-dash-reports">
-          <div class="dash-list-wrapper" id="dash-my-reports-list">
-            <!-- Dynamically populated -->
-          </div>
-        </div>
-
-        <!-- Dash Tab 2: My Claims -->
-        <div class="dash-pane" id="pane-dash-claims">
-          <div class="dash-list-wrapper" id="dash-my-claims-list">
-            <!-- Dynamically populated -->
-          </div>
-        </div>
-
-        <!-- Dash Tab 3: Matches -->
-        <div class="dash-pane" id="pane-dash-matches">
-          <div class="dash-matches-grid" id="dash-matches-grid">
-            <!-- Dynamically populated -->
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= VIEW 5: FAQ & SUPPORT ================= -->
-    <section class="view-section" id="view-faq">
-      <div class="container page-header-layout">
-        <div class="page-title-group">
-          <span class="eyebrow-text">TRANSIT AUTHORITY SUPPORT</span>
-          <h1 class="page-main-heading">Passenger Knowledge Base & Contact</h1>
-          <p class="page-main-sub">BackToyou operates across 18 terminal desks, providing verified handovers and passenger support.</p>
-        </div>
-      </div>
-
-      <div class="container faq-contact-grid">
-        <div class="faq-left-col">
-          <div class="faq-block-card hover-lift">
-            <h3>Reporting Guidelines</h3>
-            <p>Always specify line direction (e.g. Inbound vs Outbound) and approximate car number if known. Never list sensitive payment card PINs or master passwords in report descriptions.</p>
-          </div>
-
-          <div class="faq-block-card hover-lift">
-            <h3>Custody Storage Durations</h3>
-            <p>Found property is stored in climate-controlled station holding vaults for 90 days. High-value electronics and wallets are audited weekly by transit security officers.</p>
-          </div>
-
-          <div class="faq-block-card hover-lift">
-            <h3>Collection Protocol</h3>
-            <p>To release an item from station custody, passengers must present their digital Approved Claim QR Code or Claim Reference ID along with a government-issued photo ID.</p>
-          </div>
-        </div>
-
-        <div class="contact-form-card hover-lift">
-          <div class="contact-header">
-            <h3>Contact Central Transit Lost Property Desk</h3>
-            <p>Our passenger support coordinators respond within 2-4 business hours.</p>
-          </div>
-
-          <form class="contact-form" id="contact-support-form">
-            <div class="form-group-custom">
-              <label for="contact-name">Your Full Name</label>
-              <input type="text" id="contact-name" placeholder="John Doe" required />
-            </div>
-
-            <div class="form-group-custom">
-              <label for="contact-email">Email Address</label>
-              <input type="email" id="contact-email" placeholder="john@example.com" required />
-            </div>
-
-            <div class="form-group-custom">
-              <label for="contact-topic">Inquiry Type</label>
-              <select id="contact-topic">
-                <option value="claim-status">Checking Claim Review Status</option>
-                <option value="pickup-appointment">Scheduling Station Depot Pickup</option>
-                <option value="urgent-passport">Urgent Document / Passport Loss</option>
-                <option value="other">General Transit Question</option>
-              </select>
-            </div>
-
-            <div class="form-group-custom">
-              <label for="contact-message">Message</label>
-              <textarea id="contact-message" rows="4" placeholder="Include your reference tracking ID if applicable..." required></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary-mustard btn-block hover-glow">
-              <span>Send Message to Custody Office</span>
-            </button>
-          </form>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ================= MODAL 1: ITEM DETAILS & POSSIBLE MATCHES ================= -->
-  <div class="modal-overlay" id="modal-details" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content hover-lift">
-        <div class="modal-header">
-          <div class="modal-header-meta">
-            <span class="report-type-badge-lg" id="modal-item-badge">LOST</span>
-            <span class="modal-ref-id" id="modal-item-ref">TRX-000000</span>
-          </div>
-          <button class="modal-close-btn" id="modal-details-close" aria-label="Close modal">&times;</button>
-        </div>
-
-        <div class="modal-body" id="modal-details-body">
-          <!-- Dynamically injected item details and rule-based matches -->
-        </div>
-
-        <div class="modal-footer" id="modal-details-footer">
-          <!-- Action buttons injected dynamically -->
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- ================= MODAL 2: SUBMIT OWNERSHIP CLAIM ================= -->
-  <div class="modal-overlay" id="modal-claim" aria-hidden="true">
-    <div class="modal-dialog modal-md">
-      <div class="modal-content hover-lift">
-        <div class="modal-header">
-          <div>
-            <h3 class="modal-title">Submit Ownership Verification Claim</h3>
-            <p class="modal-subtitle">Claiming item: <strong id="claim-modal-item-title">Item</strong></p>
-          </div>
-          <button class="modal-close-btn" id="modal-claim-close">&times;</button>
+    <!-- ================= MODAL: PASSENGER FEEDBACK ================= -->
+    <div class="modal-overlay" id="modal-feedback" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content hover-lift">
+                <div class="modal-header">
+                    <div>
+                        <h2 class="modal-title">Share Your Feedback</h2>
+                        <p class="modal-subtitle">Tell us how BackToYou worked for you. Your feedback goes straight to the admin team.</p>
+                    </div>
+                    <button class="modal-close-btn" id="modal-feedback-close" type="button" aria-label="Close feedback">&times;</button>
+                </div>
+                <form id="form-feedback" novalidate>
+                    <div class="modal-body">
+                        <div class="form-group-custom">
+                            <label>How would you rate your experience? <span class="required-star">*</span></label>
+                            <div class="star-rating" id="feedback-stars" role="radiogroup" aria-label="Rating">
+                                <button type="button" class="star-btn" data-value="1" aria-label="1 star">&#9733;</button>
+                                <button type="button" class="star-btn" data-value="2" aria-label="2 stars">&#9733;</button>
+                                <button type="button" class="star-btn" data-value="3" aria-label="3 stars">&#9733;</button>
+                                <button type="button" class="star-btn" data-value="4" aria-label="4 stars">&#9733;</button>
+                                <button type="button" class="star-btn" data-value="5" aria-label="5 stars">&#9733;</button>
+                            </div>
+                            <input type="hidden" id="feedback-rating" value="0" />
+                            <span class="input-error-msg" id="err-feedback-rating">Please choose a rating</span>
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="feedback-category">What is your feedback about?</label>
+                            <select id="feedback-category">
+                                <option>Ease of use</option>
+                                <option>Reporting an item</option>
+                                <option>Search &amp; matching</option>
+                                <option>Claim process</option>
+                                <option>Bug / problem</option>
+                                <option>Suggestion</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="feedback-message">Your feedback <span class="required-star">*</span></label>
+                            <textarea id="feedback-message" rows="5" placeholder="What worked well? What was confusing? What would you change?"></textarea>
+                            <span class="input-error-msg" id="err-feedback-message">Please write at least 10 characters</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary-mustard">Send Feedback</button>
+                    </div>
+                </form>
+            </div>
         </div>
-
-        <form id="form-submit-claim">
-          <input type="hidden" id="claim-item-id" />
-          <div class="modal-body">
-            <div class="claim-notice-box">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              <div>
-                <strong>Confidential Custody Verification</strong>
-                <p>Provide identifying features that only the lawful owner would know. This data is exclusively visible to authorized transit officers.</p>
-              </div>
-            </div>
-
-            <div class="form-group-custom">
-              <label for="claim-claimant-name">Your Full Legal Name <span class="required-star">*</span></label>
-              <input type="text" id="claim-claimant-name" placeholder="As shown on photo ID" required />
-            </div>
-
-            <div class="form-group-custom">
-              <label for="claim-claimant-phone">Contact Phone Number <span class="required-star">*</span></label>
-              <input type="tel" id="claim-claimant-phone" placeholder="+1 (555) 000-0000" required />
-            </div>
-
-            <div class="form-group-custom">
-              <label for="claim-secret-details">Private Identifying Proof <span class="required-star">*</span></label>
-              <textarea id="claim-secret-details" rows="4" placeholder="e.g. Device wallpaper description, serial number last 4 digits, specific keychain charm, cash denominations in wallet, or brand of item inside bag..." required></textarea>
-            </div>
-
-            <div class="form-group-custom">
-              <label for="claim-pickup-station">Preferred Station Custody Desk for Handover</label>
-              <select id="claim-pickup-station">
-                <option value="Grand Central Terminal Lost & Found">Grand Central Terminal Lost & Found Office</option>
-                <option value="South Station Transit Depot">South Station Transit Depot</option>
-                <option value="Metro Center Customer Service Hub">Metro Center Customer Service Hub</option>
-                <option value="Union Square Depot Desk">Union Square Depot Desk</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-brown" id="btn-cancel-claim">Cancel</button>
-            <button type="submit" class="btn btn-primary-mustard hover-glow" id="btn-submit-claim-action">
-              <span>Submit Claim Dossier</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= MODAL 3: STAFF / ADMIN WORKSPACE (Guide Page 8) ================= -->
-  <div class="modal-overlay" id="modal-admin" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content hover-lift">
-        <div class="modal-header admin-modal-header">
-          <div class="admin-header-title">
-            <div class="admin-badge">OFFICIAL STAFF PORTAL</div>
-            <h2 class="modal-title">Transit Custody & Verification Console</h2>
-            <p class="modal-subtitle">Authorized verification and chain-of-custody handover tracking.</p>
-          </div>
-          <button class="modal-close-btn" id="modal-admin-close">&times;</button>
-        </div>
-
-        <div class="modal-body admin-console-body">
-          <!-- Admin KPI Summary -->
-          <div class="admin-stat-row">
-            <div class="admin-stat-tile">
-              <span class="tile-val" id="admin-pending-claims-count">2</span>
-              <span class="tile-lbl">Pending Review Queue</span>
-            </div>
-            <div class="admin-stat-tile">
-              <span class="tile-val" id="admin-approved-count">5</span>
-              <span class="tile-lbl">Vouchers Issued</span>
-            </div>
-            <div class="admin-stat-tile">
-              <span class="tile-val" id="admin-recovered-count">18</span>
-              <span class="tile-lbl">Confirmed Handovers</span>
-            </div>
-            <div class="admin-stat-tile">
-              <span class="tile-val">98.2%</span>
-              <span class="tile-lbl">Chain-of-Custody Compliance</span>
-            </div>
-          </div>
-
-          <!-- Pending Claims Queue Table (From Guide Page 8) -->
-          <div class="admin-table-card">
-            <div class="admin-card-header">
-              <h3>Pending Passenger Ownership Claims</h3>
-              <span class="admin-pill-note">Authorized Officers Only</span>
-            </div>
-            <div class="table-responsive">
-              <table class="admin-table" id="admin-claims-table">
-                <thead>
-                  <tr>
-                    <th>Claim ID</th>
-                    <th>Item Claimed</th>
-                    <th>Claimant Name</th>
-                    <th>Private Verification Details</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="admin-claims-tbody">
-                  <!-- Injected via JS -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <span class="text-xs text-muted">All approvals/rejections create logged custody audit entries.</span>
-          <button class="btn btn-outline-brown" id="admin-close-btn">Close Portal</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= MODAL 4: AUTHENTICATION (Sign In / Register) ================= -->
-  <div class="modal-overlay" id="modal-auth" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-      <div class="modal-content">
-        <div class="modal-header">
-          <div>
-            <h3 class="modal-title" id="auth-title">Passenger Sign In</h3>
-            <p class="modal-subtitle">Access your lost reports, view found matches, and track custody handover.</p>
-          </div>
-          <button class="modal-close-btn" id="modal-auth-close">&times;</button>
-        </div>
-
-        <form id="form-auth">
-          <div class="modal-body">
-            <div class="form-group-custom">
-              <label for="auth-email">Passenger Email / Card ID</label>
-              <input type="email" id="auth-email" placeholder="passenger@metro.org" value="sarah.jenkins@metrotransit.org" required />
-            </div>
-
-            <div class="form-group-custom">
-              <label for="auth-password">Password</label>
-              <div class="input-with-action">
-                <input type="password" id="auth-password" placeholder="••••••••" value="TransitPass2026!" required />
-                <button type="button" class="btn-toggle-pwd" id="auth-toggle-pwd" aria-label="Show password">👁️</button>
-              </div>
-            </div>
-
-            <div class="auth-helper-row">
-              <label class="remember-label">
-                <input type="checkbox" checked />
-                <span>Keep me signed in</span>
-              </label>
-              <a href="#faq" class="text-link-sm" id="auth-forgot">Need help?</a>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-primary-mustard btn-block">
-              <span>Sign In as Passenger</span>
-            </button>
-            <button type="button" class="btn btn-outline-brown btn-block" id="btn-guest-browse" style="margin-top: 8px;">
-              <span>Continue as Passenger / Guest</span>
-            </button>
-            <div class="text-center w-full mt-2">
-              <span class="text-xs text-muted">Passenger Portal • Secure Public Transit Tracking</span>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= TOAST NOTIFICATION STACK ================= -->
-  <div class="toast-container" id="toast-container" aria-live="polite"></div>
-
-  <!-- ================= FOOTER (Guide Page 9) ================= -->
-  <footer class="app-footer">
-    <div class="container footer-content">
-      <div class="footer-col-main">
-        <div class="brand-logo footer-logo">
-          <div class="brand-icon-box footer-icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="15" rx="2"></rect>
-              <line x1="3" y1="9" x2="21" y2="9"></line>
-              <line x1="12" y1="3" x2="12" y2="9"></line>
-              <circle cx="7.5" cy="14" r="1.5" fill="#000000"></circle>
-              <circle cx="16.5" cy="14" r="1.5" fill="#000000"></circle>
-              <path d="M5 18v2"></path>
-              <path d="M19 18v2"></path>
-            </svg>
-          </div>
-          <div class="brand-meta">
-            <span class="brand-name footer-brand-name">BackTo<strong class="footer-brand-strong">You</strong></span>
-            <span class="brand-sub footer-brand-sub">PUBLIC TRANSPORT LOST &amp; FOUND</span>
-          </div>
-        </div>
-        <p class="footer-bio">
-          Official regional public transport lost item recovery network. Dedicated to reuniting passengers with their belongings quickly, securely, and transparently.
-        </p>
-        <div class="footer-social-row">
-          <span class="demo-badge">Public Transit Passenger Portal</span>
-        </div>
-      </div>
-
-      <div class="footer-col">
-        <h4 class="footer-heading">Navigation</h4>
-        <ul class="footer-links">
-          <li><a href="#home" class="footer-nav-link" data-view="home">Home</a></li>
-          <li><a href="#browse" class="footer-nav-link" data-view="browse">Browse Reports</a></li>
-          <li><a href="#dashboard" class="footer-nav-link" data-view="dashboard">My Dashboard</a></li>
-          <li><a href="#faq" class="footer-nav-link" data-view="faq">FAQ & Support</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-col">
-        <h4 class="footer-heading">Services</h4>
-        <ul class="footer-links">
-          <li><a href="#report" class="footer-nav-link" data-view="report">Report Lost Item</a></li>
-          <li><a href="#report" class="footer-nav-link" data-view="report">Report Found Item</a></li>
-          <li><a href="#browse" class="footer-nav-link" data-view="browse">Rule-Based Matching</a></li>
-          <li><a href="#faq" class="footer-nav-link" data-view="faq">Collection Guidelines</a></li>
-        </ul>
-      </div>
     </div>
 
-    <div class="footer-bottom">
-      <div class="container footer-bottom-flex">
-        <span>&copy; 2026 BackToYou Public Transport Lost &amp; Found. All rights reserved.</span>
-        <div class="footer-legal-links">
-          <a href="#faq">Privacy Policy</a>
-          <span>•</span>
-          <a href="#faq">Terms of Service</a>
-          <span>•</span>
-          <a href="#faq">Custody Audit Guidelines</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+    <div class="modal-overlay" id="modal-details" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content hover-lift">
+                <div class="modal-header">
+                    <div class="modal-header-meta">
+                        <span class="report-type-badge-lg" id="modal-item-badge">LOST</span>
+                        <span class="modal-ref-id" id="modal-item-ref">TRX-000000</span>
+                    </div>
+                    <button class="modal-close-btn" id="modal-details-close" aria-label="Close modal">&times;</button>
+                </div>
 
-  <script src="api.js"></script>
-  <script src="app.js"></script>
+                <div class="modal-body" id="modal-details-body">
+                    <!-- Dynamically injected item details and rule-based matches -->
+                </div>
+
+                <div class="modal-footer" id="modal-details-footer">
+                    <!-- Action buttons injected dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL 2: SUBMIT OWNERSHIP CLAIM ================= -->
+    <div class="modal-overlay" id="modal-claim" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content hover-lift">
+                <div class="modal-header">
+                    <div>
+                        <h3 class="modal-title">Submit Ownership Verification Claim</h3>
+                        <p class="modal-subtitle">Claiming item: <strong id="claim-modal-item-title">Item</strong></p>
+                    </div>
+                    <button class="modal-close-btn" id="modal-claim-close">&times;</button>
+                </div>
+
+                <form id="form-submit-claim">
+                    <input type="hidden" id="claim-item-id" />
+                    <div class="modal-body">
+                        <div class="claim-notice-box">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                            <div>
+                                <strong>Confidential Custody Verification</strong>
+                                <p>Provide identifying features that only the lawful owner would know. This data is exclusively visible to authorized transit officers.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="claim-claimant-name">Your Full Legal Name <span class="required-star">*</span></label>
+                            <input type="text" id="claim-claimant-name" placeholder="As shown on photo ID" required />
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="claim-claimant-phone">Contact Phone Number <span class="required-star">*</span></label>
+                            <input type="tel" id="claim-claimant-phone" placeholder="+1 (555) 000-0000" required />
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="claim-secret-details">Private Identifying Proof <span class="required-star">*</span></label>
+                            <textarea id="claim-secret-details" rows="4" placeholder="e.g. Device wallpaper description, serial number last 4 digits, specific keychain charm, cash denominations in wallet, or brand of item inside bag..." required></textarea>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="claim-pickup-station">Preferred Station Custody Desk for Handover</label>
+                            <select id="claim-pickup-station">
+                                <option value="Grand Central Terminal Lost & Found">Grand Central Terminal Lost & Found Office</option>
+                                <option value="South Station Transit Depot">South Station Transit Depot</option>
+                                <option value="Metro Center Customer Service Hub">Metro Center Customer Service Hub</option>
+                                <option value="Union Square Depot Desk">Union Square Depot Desk</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary-mustard hover-glow" id="btn-submit-claim-action">
+                            <span>Submit Claim Dossier</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL 3: STAFF / ADMIN WORKSPACE (Guide Page 8) ================= -->
+    <div class="modal-overlay" id="modal-admin" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content hover-lift">
+                <div class="modal-header admin-modal-header">
+                    <div class="admin-header-title">
+                        <div class="admin-badge">OFFICIAL STAFF PORTAL</div>
+                        <h2 class="modal-title" id="admin-modal-title">Transit Custody & Verification Console</h2>
+                        <p class="modal-subtitle" id="admin-modal-subtitle">Authorized verification and chain-of-custody handover tracking.</p>
+                    </div>
+                    <button class="modal-close-btn" id="modal-admin-close">&times;</button>
+                </div>
+
+                <div class="modal-body admin-console-body">
+                    <!-- Admin sections are selected directly from the main navigation. -->
+                    <!-- PANE: Network Analytics and complete activity trail -->
+                    <div class="admin-pane active" id="admin-pane-analytics">
+                        <div class="admin-stat-row" id="admin-analytics-stats"></div>
+                    </div>
+
+                    <!-- PANE: Staff Console (claims verification queue) -->
+                    <div class="admin-pane" id="admin-pane-console">
+                        <div class="admin-section-intro">
+                            <span class="admin-section-kicker">OPERATIONS WORKSPACE</span>
+                            <h2>Staff Console</h2>
+                            <p>Review passenger ownership claims, approve or reject requests, and monitor custody handovers.</p>
+                        </div>
+                        <div class="admin-stat-row">
+                            <div class="admin-stat-tile">
+                                <span class="tile-val" id="admin-pending-claims-count">2</span>
+                                <span class="tile-lbl">Pending Review Queue</span>
+                            </div>
+                            <div class="admin-stat-tile">
+                                <span class="tile-val" id="admin-approved-count">5</span>
+                                <span class="tile-lbl">Vouchers Issued</span>
+                            </div>
+                            <div class="admin-stat-tile">
+                                <span class="tile-val" id="admin-recovered-count">18</span>
+                                <span class="tile-lbl">Confirmed Handovers</span>
+                            </div>
+                            <div class="admin-stat-tile">
+                                <span class="tile-val">98.2%</span>
+                                <span class="tile-lbl">Chain-of-Custody Compliance</span>
+                            </div>
+                        </div>
+
+                        <div class="admin-table-card">
+                            <div class="admin-card-header">
+                                <h3>Pending Passenger Ownership Claims</h3>
+                                <span class="admin-pill-note">Authorized Officers Only</span>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="admin-table" id="admin-claims-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Claim ID</th>
+                                            <th>Item Claimed</th>
+                                            <th>Claimant Name</th>
+                                            <th>Private Verification Details</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-claims-tbody">
+                                        <!-- Injected via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANE: User Management -->
+                    <div class="admin-pane" id="admin-pane-users">
+                        <div class="admin-section-intro">
+                            <span class="admin-section-kicker">ACCOUNT ADMINISTRATION</span>
+                            <h2>User Management</h2>
+                            <p>View registered passengers and staff, check account activity, and manage account access.</p>
+                        </div>
+                        <div class="admin-stat-row" id="admin-users-stats"></div>
+                        <div class="admin-table-card">
+                            <div class="admin-card-header">
+                                <h3>Registered Accounts</h3>
+                                <span class="admin-pill-note">Role &amp; access control</span>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Role</th>
+                                            <th>Home Station</th>
+                                            <th>Last Active</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-users-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- PANE: Passenger Feedback -->
+                    <div class="admin-pane" id="admin-pane-feedback">
+                        <div class="admin-section-intro">
+                            <span class="admin-section-kicker">PASSENGER VOICE</span>
+                            <h2>Passenger Feedback</h2>
+                            <p>Read ratings, comments, reported problems, and suggestions submitted by passengers.</p>
+                        </div>
+                        <div class="admin-stat-row" id="admin-feedback-stats"></div>
+                        <div class="admin-table-card">
+                            <div class="admin-card-header">
+                                <h3>Passenger Feedback</h3>
+                                <select class="admin-filter-select" id="admin-feedback-filter" aria-label="Filter feedback by category">
+                                    <option value="all">All categories</option>
+                                    <option value="Ease of use">Ease of use</option>
+                                    <option value="Reporting an item">Reporting an item</option>
+                                    <option value="Search &amp; matching">Search &amp; matching</option>
+                                    <option value="Claim process">Claim process</option>
+                                    <option value="Bug / problem">Bug / problem</option>
+                                    <option value="Suggestion">Suggestion</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Received</th>
+                                            <th>Passenger</th>
+                                            <th>Rating</th>
+                                            <th>Category</th>
+                                            <th>Feedback</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-feedback-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <span class="text-xs text-muted">All approvals and rejections are recorded against the claim.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL 4: AUTHENTICATION (Sign In / Register) ================= -->
+    <div class="modal-overlay" id="modal-auth" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h3 class="modal-title" id="auth-title">Passenger Sign In</h3>
+                        <p class="modal-subtitle">Access your lost reports, view found matches, and track custody handover.</p>
+                    </div>
+                    <button class="modal-close-btn" id="modal-auth-close">&times;</button>
+                </div>
+
+                <form id="form-auth">
+                    <div class="modal-body">
+                        <div class="form-group-custom">
+                            <label for="auth-email">Passenger Email / Card ID</label>
+                            <input type="email" id="auth-email" placeholder="passenger@metro.org" value="sarah.jenkins@metrotransit.org" required />
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="auth-password">Password</label>
+                            <div class="input-with-action">
+                                <input type="password" id="auth-password" placeholder="••••••••" value="TransitPass2026!" required />
+                                <button type="button" class="btn-toggle-pwd" id="auth-toggle-pwd" aria-label="Show password">👁️</button>
+                            </div>
+                        </div>
+
+                        <div class="auth-helper-row">
+                            <label class="remember-label">
+                                <input type="checkbox" checked />
+                                <span>Keep me signed in</span>
+                            </label>
+                            <a href="#faq" class="text-link-sm" id="auth-forgot">Need help?</a>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary-mustard btn-block">
+                            <span>Sign In as Passenger</span>
+                        </button>
+                        <div class="text-center w-full mt-2">
+                            <span class="text-xs text-muted">Passenger Portal • Secure Public Transit Tracking</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= TOAST NOTIFICATION STACK ================= -->
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+    <!-- ================= FOOTER (Guide Page 9) ================= -->
+    <footer class="app-footer">
+        <div class="container footer-content">
+            <div class="footer-col-main">
+                <div class="brand-logo footer-logo">
+                    <div class="brand-icon-box footer-icon-box">
+                        <img src="logo.jpg" alt="BackToYou Transit Logo" class="brand-logo-img" />
+                    </div>
+                    <div class="brand-meta">
+                        <span class="brand-name footer-brand-name">BackTo<strong class="footer-brand-strong">You</strong></span>
+                        <span class="brand-sub footer-brand-sub">PUBLIC TRANSPORT LOST &amp; FOUND</span>
+                    </div>
+                </div>
+                <p class="footer-bio">
+                    Official regional public transport lost item recovery network. Dedicated to reuniting passengers with their belongings quickly, securely, and transparently.
+                </p>
+                <div class="footer-social-row">
+                    <span class="demo-badge">Public Transit Passenger Portal</span>
+                </div>
+            </div>
+
+            <!-- Navigation column removed - nav links now live in the role-specific top navbar -->
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Services</h4>
+                <ul class="footer-links">
+                    <li class="footer-passenger-only"><a href="#report" class="footer-nav-link" data-view="report">Report Lost Item</a></li>
+                    <li class="footer-passenger-only"><a href="#report" class="footer-nav-link" data-view="report">Report Found Item</a></li>
+                    <li><a href="#browse" class="footer-nav-link" data-view="browse">Rule-Based Matching</a></li>
+                    <li><a href="#faq" class="footer-nav-link" data-view="faq">Collection Guidelines</a></li>
+                    <li id="footer-feedback-item" style="display:none;"><a href="#" class="footer-nav-link" id="footer-feedback-link">Share Feedback</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container footer-bottom-flex">
+                <span>&copy; 2026 BackToYou Public Transport Lost &amp; Found. All rights reserved.</span>
+                <div class="footer-legal-links">
+                    <a href="#faq">Privacy Policy</a>
+                    <span>•</span>
+                    <a href="#faq">Terms of Service</a>
+                    <span>•</span>
+                    <a href="#faq">Custody Audit Guidelines</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="api.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
