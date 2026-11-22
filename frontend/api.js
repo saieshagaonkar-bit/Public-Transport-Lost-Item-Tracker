@@ -3,7 +3,7 @@
  * Connects frontend views directly to the Express + MongoDB backend engine.
  */
 
-const API_BASE_URL = window.BACKTOYOU_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = window.BACKTOYOU_API_URL || 'https://backtoyou-api.onrender.com/api';
 
 const TOKEN_KEY = 'backtoyou_jwt_token';
 const USER_KEY = 'backtoyou_current_user';
