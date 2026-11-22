@@ -1,3 +1,0 @@
-[build]
-# Frontend is a static site; no build step needed.
-publish = "frontend"
