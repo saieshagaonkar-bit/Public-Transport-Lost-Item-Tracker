@@ -468,86 +468,7 @@ function findMatchesForItem(targetItem) {
 // 3. DOM Elements & Initializer
 // =====================================================================
 
-async function syncFromBackend() {
-    try {
-        const itemsRes = await BackToYouAPI.items.getAll();
-        if (itemsRes.success && Array.isArray(itemsRes.data)) {
-            state.items = itemsRes.data;
-        }
-    } catch (err) {
-        console.warn("[BackToYou] Notice: Using cached transit data:", err.message);
-    }
-
-    if (state.currentUser) {
-        try {
-            const notifRes = await BackToYouAPI.me.getNotifications();
-            if (notifRes.success && Array.isArray(notifRes.data)) {
-                state.notifications = notifRes.data;
-            }
-        } catch (e) {}
-
-        try {
-            if (state.currentUser.role === "Passenger") {
-                const claimsRes = await BackToYouAPI.claims.getMyClaims();
-                if (claimsRes.success && Array.isArray(claimsRes.data)) {
-                    state.claims = claimsRes.data;
-                }
-            } else {
-                const claimsRes = await BackToYouAPI.claims.getAll();
-                if (claimsRes.success && Array.isArray(claimsRes.data)) {
-                    state.claims = claimsRes.data;
-                }
-                const auditRes = await BackToYouAPI.admin.getAudit();
-                if (auditRes.success && Array.isArray(auditRes.data)) {
-                    state.auditLog = auditRes.data;
-                }
-                const dispRes = await BackToYouAPI.admin.getDisposals();
-                if (dispRes.success && Array.isArray(dispRes.data)) {
-                    state.disposals = dispRes.data;
-                }
-                const fbRes = await BackToYouAPI.feedback.getAll();
-                if (fbRes.success && Array.isArray(fbRes.data)) {
-                    state.feedback = fbRes.data;
-                }
-                if (state.currentUser.role === "Admin") {
-                    const usersRes = await BackToYouAPI.admin.getUsers();
-                    if (usersRes.success && Array.isArray(usersRes.data)) {
-                        state.users = usersRes.data;
-                    }
-                }
-            }
-        } catch (e) {}
-    }
-
-    renderAllViews();
-}
-
-async function initAuthSession() {
-    window.addEventListener("backtoyou:unauthorized", () => {
-        handleLogout();
-        showToast("Authentication session expired. Please sign in again.", "warning");
-    });
-
-    const token = BackToYouAPI.getToken();
-    if (token) {
-        try {
-            const res = await BackToYouAPI.auth.getMe();
-            if (res.success && res.user) {
-                state.currentUser = res.user;
-                updateNavAuthState();
-                await syncFromBackend();
-                return;
-            }
-        } catch (err) {
-            BackToYouAPI.clearSession();
-        }
-    }
-    state.currentUser = null;
-    updateNavAuthState();
-    await syncFromBackend();
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
     initTheme();
     setupNavigation();
     setupLoginPortal();
@@ -564,7 +485,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupFaqAccordion();
     updateNavAuthState();
     renderAllViews();
-    await initAuthSession();
 });
 
 // Theme Management
@@ -753,15 +673,12 @@ function setupLoginPortal() {
     });
 
     // Passenger sign in (shared by Log In and Sign Up)
-    async function signInPassenger(user, token) {
-        if (token) BackToYouAPI.setToken(token);
-        BackToYouAPI.setStoredUser(user);
-        state.currentUser = user;
-        state.profile = loadProfileFor(user.email, user.name, user.phone);
-        logAudit("Access", "Signed in", `${state.currentUser.role} • ${user.email}`);
+    function signInPassenger(account) {
+        state.profile = loadProfileFor(account.email, account.name, account.phone);
+        state.currentUser = { name: state.profile.name || account.name, email: account.email, role: "Passenger" };
+        logAudit("Access", "Signed in", `${state.currentUser.role} • ${account.email}`);
         updateNavAuthState();
-        showToast(`Welcome, ${user.name.split(" ")[0]}!`, "success");
-        await syncFromBackend();
+        showToast(`Welcome, ${state.currentUser.name.split(" ")[0]}!`, "success");
         navigateToView("home"); // passengers land on the Home page
     }
 
@@ -785,6 +702,7 @@ function setupLoginPortal() {
             const phone = document.getElementById("signup-phone").value.trim();
             const password = document.getElementById("signup-password").value;
             const confirm = document.getElementById("signup-confirm").value;
+
             let hasError = false;
             if (!name) { markError("signup-name"); hasError = true; }
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { markError("signup-email"); hasError = true; }
@@ -793,64 +711,67 @@ function setupLoginPortal() {
             if (confirm !== password) { markError("signup-confirm"); hasError = true; }
             if (hasError) return;
 
-            try {
-                const res = await BackToYouAPI.auth.register({ name, email, phone, password });
-                if (res.success) {
-                    signupForm.reset();
-                    authMode = "login";
-                    applyAuthMode();
-                    await signInPassenger(res.user, res.token);
-                }
-            } catch (err) {
-                showAuthError(signupError, err.message || "Failed to create passenger account.");
+            if (accountExists(email)) {
+                markError("signup-email");
+                showAuthError(signupError, "An account with this email already exists. Please log in instead.");
+                return;
             }
+
+            const account = await createPassengerAccount({ name, email, phone, password });
+            state.currentUser = { name, email: account.email, role: "Passenger" };
+            logAudit("Accounts", "Created passenger account", `${name} (${account.email})`);
+            saveProfileFor(account.email, { name, phone, address: "" });
+            signupForm.reset();
+            authMode = "login";
+            applyAuthMode();
+            signInPassenger(account);
         });
     }
 
     // Handle Form Submission (Log In)
     if (form) {
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        showAuthError(loginError, "");
-        const currentRole = roleInput ? roleInput.value : "passenger";
-        const config = roleConfigs[currentRole] || roleConfigs.passenger;
-        const enteredEmail = emailInput ? emailInput.value.trim() : config.emailValue;
-        const password = pwdInput ? pwdInput.value : "";
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            showAuthError(loginError, "");
+            const currentRole = roleInput ? roleInput.value : "passenger";
+            const config = roleConfigs[currentRole] || roleConfigs.passenger;
+            const enteredEmail = emailInput ? emailInput.value.trim() : config.emailValue;
 
-        if (!enteredEmail || !password) {
-            showAuthError(loginError, "Please enter your email and password.");
-            return;
-        }
-
-        try {
-            const res = await BackToYouAPI.auth.login({
-                email: enteredEmail,
-                password: password,
-                role: config.roleName
-            });
-
-            if (res.success) {
-                BackToYouAPI.setToken(res.token);
-                BackToYouAPI.setStoredUser(res.user);
-                state.currentUser = res.user;
-                updateNavAuthState();
-                showToast(`Welcome! Logged in as ${res.user.name}.`, "success");
-                await syncFromBackend();
-
-                if (currentRole === "admin") {
-                    navigateToView("dashboard");
-                    openAdminConsole("analytics");
-                } else if (currentRole === "staff") {
-                    navigateToView("staff-home");
-                } else {
-                    navigateToView("home");
+            if (currentRole === "passenger") {
+                const password = pwdInput ? pwdInput.value : "";
+                if (!enteredEmail || !password) {
+                    showAuthError(loginError, "Please enter your email and password.");
+                    return;
                 }
+                const account = await verifyPassengerLogin(enteredEmail, password);
+                if (!account) {
+                    showAuthError(loginError, "Incorrect email or password. New here? Use Sign Up to create an account.");
+                    return;
+                }
+                signInPassenger(account);
+                return;
             }
-        } catch (err) {
-            showAuthError(loginError, err.message || "Invalid credentials. Please verify your email and password.");
-        }
-    });
-}
+
+            state.currentUser = {
+                name: config.userName,
+                email: enteredEmail,
+                role: config.roleName
+            };
+            logAudit("Access", "Signed in", `${state.currentUser.role} • ${enteredEmail}`);
+            updateNavAuthState();
+            showToast(`Welcome! Logged in to ${config.heading}.`, "success");
+
+            if (currentRole === "admin") {
+                navigateToView("dashboard");
+                openAdminConsole("Analytics");
+            } else if (currentRole === "staff") {
+                navigateToView("staff-home");
+            } else {
+                // Passengers land on the Home page after signing in
+                navigateToView("home");
+            }
+        });
+    }
 }
 
 // User Navigation Auth State & Logout
@@ -1041,7 +962,6 @@ function renderRoleNavLinks(role) {
 
 function handleLogout() {
     if (state.currentUser) logAudit("Access", "Signed out", `${state.currentUser.role} • ${state.currentUser.email || ""}`);
-    BackToYouAPI.clearSession();
     closeAdminModal();
     document.body.classList.remove("is-admin-user");
     state.currentUser = null;
@@ -1118,7 +1038,7 @@ function setupProfile() {
 
     document.getElementById("btn-profile-cancel")?.addEventListener("click", () => navigateToView("home"));
 
-    form.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", (e) => {
         e.preventDefault();
         form.querySelectorAll(".form-group-custom").forEach(g => g.classList.remove("has-error"));
 
@@ -1143,20 +1063,8 @@ function setupProfile() {
             state.currentUser.name = name;
             updateNavAuthState();
         }
-
-        try {
-            const res = await BackToYouAPI.me.updateProfile({ name, phone, address });
-            if (res.success) {
-                state.currentUser.name = res.user.name;
-                state.currentUser.phone = res.user.phone;
-                state.currentUser.address = res.user.address;
-                updateNavAuthState();
-                paintAvatar(document.getElementById("profile-avatar"), name);
-                showToast("Profile saved successfully in database.", "success");
-            }
-        } catch (err) {
-            showToast(err.message || "Failed to save profile", "error");
-        }
+        paintAvatar(document.getElementById("profile-avatar"), name);
+        showToast("Profile saved.", "success");
     });
 }
 
@@ -1727,7 +1635,7 @@ function setupReportForm() {
     }
 }
 
-async function handleReportSubmission(e) {
+function handleReportSubmission(e) {
     e.preventDefault();
 
     // Reset errors
@@ -1768,18 +1676,16 @@ async function handleReportSubmission(e) {
         return;
     }
 
-    if (!state.currentUser) {
-        showToast("Please sign in to register your report.", "warning");
-        navigateToView("login");
-        return;
-    }
+    // Generate Reference Tracking ID
+    const newRefId = `TRX-${Math.floor(100000 + Math.random() * 900000)}`;
 
     const photoPreview = document.getElementById("dropzone-img")?.src;
     const recordedReporter = reporterRole === "Conductor" ? `${reporterName} (Conductor Person)` : reporterName;
 
-    const reportPayload = {
-        title: itemName,
+    const newReport = {
+        id: newRefId,
         type: reportType,
+        title: itemName,
         category,
         transitType,
         route,
@@ -1794,39 +1700,44 @@ async function handleReportSubmission(e) {
         image: reportType === "Found" ? (photoPreview || null) : null,
         reporterName: recordedReporter,
         reporterEmail,
-        claimed: false,
-        reporterRole
+        claimed: false
     };
 
-    const submitBtn = document.getElementById("form-submit-btn");
-    const btnText = document.getElementById("btn-submit-text");
-    const origBtnText = btnText ? btnText.textContent : "";
-    if (submitBtn) submitBtn.disabled = true;
-    if (btnText) btnText.textContent = "Registering in MongoDB...";
+    // Add to state
+    state.items.unshift(newReport);
+    logAudit("Reports", `Submitted ${newReport.type.toLowerCase()} item report`, `${newReport.title} (${newReport.id})`);
 
-    try {
-        const res = await BackToYouAPI.items.create(reportPayload);
-
-        logAudit("Reports", `Submitted ${reportType.toLowerCase()} item report`, `${itemName} (${res.data?.customId || ""})`);
-
-        // Reset form
-        document.getElementById("transit-report-form").reset();
-        const previewBox = document.getElementById("dropzone-preview");
-        if (previewBox) previewBox.style.display = "none";
-        const dropzoneContent = document.getElementById("dropzone-content");
-        if (dropzoneContent) dropzoneContent.style.display = "flex";
-
-        showToast(`Report ${res.data?.customId || ""} successfully registered in MongoDB!`, "success");
-
-        await syncFromBackend();
-        updateSystemCounters();
-        navigateToView("dashboard");
-    } catch (err) {
-        showToast(err.message || "Failed to register report. Please check server.", "error");
-    } finally {
-        if (submitBtn) submitBtn.disabled = false;
-        if (btnText) btnText.textContent = origBtnText;
+    // Check automated matching immediately!
+    const potentialMatches = findMatchesForItem(newReport);
+    if (potentialMatches.length > 0) {
+        newReport.status = "Possible Match";
+        // Also notify user
+        const topMatch = potentialMatches[0];
+        state.notifications.unshift({
+            id: `notif-${Date.now()}`,
+            title: `Possible Match Found for ${itemName}!`,
+            body: `Engine detected an ${topMatch.score}% confidence match with item ${topMatch.matchedItem.id} (${topMatch.matchedItem.title}).`,
+            time: "Just now",
+            read: false,
+            itemId: topMatch.matchedItem.id
+        });
     }
+
+    // Update navbar count & stats
+    updateSystemCounters();
+
+    // Reset form
+    document.getElementById("transit-report-form").reset();
+    const previewBox = document.getElementById("dropzone-preview");
+    if (previewBox) previewBox.style.display = "none";
+    const dropzoneContent = document.getElementById("dropzone-content");
+    if (dropzoneContent) dropzoneContent.style.display = "flex";
+
+    // Show Toast
+    showToast(`Report ${newRefId} successfully submitted to the transit registry!`, "success");
+
+    // Navigate to Dashboard or Details
+    navigateToView("dashboard");
 }
 
 function markError(elementId) {
@@ -2035,7 +1946,7 @@ function closeClaimModal() {
     document.body.style.overflow = "";
 }
 
-async function handleClaimSubmission(e) {
+function handleClaimSubmission(e) {
     e.preventDefault();
     const itemId = document.getElementById("claim-item-id").value;
     const name = document.getElementById("claim-claimant-name").value.trim();
@@ -2048,39 +1959,45 @@ async function handleClaimSubmission(e) {
         return;
     }
 
-    if (!state.currentUser) {
-        showToast("Please sign in to file an ownership claim.", "warning");
-        closeClaimModal();
-        navigateToView("login");
-        return;
+    const newClaimId = `CLM-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const targetItem = state.items.find(i => i.id === itemId);
+    if (targetItem) {
+        targetItem.status = "Claim Pending";
+        targetItem.claimed = true;
     }
 
-    const actionBtn = document.getElementById("btn-submit-claim-action");
-    if (actionBtn) actionBtn.disabled = true;
+    const claimRecord = {
+        claimId: newClaimId,
+        itemId,
+        itemTitle: targetItem ? targetItem.title : "Transit Item",
+        claimantName: name,
+        claimantPhone: phone,
+        secretDetails: secret,
+        pickupStation: station,
+        status: "Pending Review",
+        dateSubmitted: new Date().toISOString().split("T")[0]
+    };
 
-    try {
-        const res = await BackToYouAPI.claims.create(itemId, {
-            claimantName: name,
-            claimantPhone: phone,
-            secretDetails: secret,
-            pickupStation: station
-        });
+    state.claims.unshift(claimRecord);
+    logAudit("Claims", "Submitted ownership claim", `${claimRecord.claimId} • ${claimRecord.itemTitle}`);
 
-        const claimId = res.data?.claimId || "";
-        logAudit("Claims", "Submitted ownership claim", `${claimId} • ${itemId}`);
+    // In-app notification
+    state.notifications.unshift({
+        id: `notif-${Date.now()}`,
+        title: `Ownership Claim ${newClaimId} Filed`,
+        body: `Your claim for '${targetItem?.title}' has been submitted to authorized staff for review.`,
+        time: "Just now",
+        read: false,
+        itemId
+    });
 
-        closeClaimModal();
-        document.getElementById("form-submit-claim").reset();
-        showToast(`Claim ${claimId} registered in MongoDB database! Authorized officers will examine your proof.`, "success");
+    closeClaimModal();
+    document.getElementById("form-submit-claim").reset();
+    showToast(`Claim ${newClaimId} registered! Authorized officers will examine your proof.`, "success");
 
-        await syncFromBackend();
-        updateSystemCounters();
-        renderAllViews();
-    } catch (err) {
-        showToast(err.message || "Failed to submit claim. Please try again.", "error");
-    } finally {
-        if (actionBtn) actionBtn.disabled = false;
-    }
+    updateSystemCounters();
+    renderAllViews();
 }
 
 // Auth Modal helpers
@@ -2293,22 +2210,14 @@ function renderAdminUsers() {
   `).join("");
 }
 
-window.adminToggleUser = async function (userId) {
-    const user = state.users.find(x => x.id === userId || x._id === userId);
+window.adminToggleUser = function (userId) {
+    const user = state.users.find(x => x.id === userId);
     if (!user || user.role === "Admin") return;
     const suspending = user.status === "Active";
-    try {
-        const res = await BackToYouAPI.admin.toggleUserStatus(user._id || user.id);
-        if (res.success) {
-            user.status = res.data.status;
-            logAudit("Users", suspending ? "Suspended account" : "Reactivated account", `${user.name} (${user.id})`);
-            renderAdminUsers();
-            showToast(`${user.name} has been ${user.status.toLowerCase()}.`, "success");
-            await syncFromBackend();
-        }
-    } catch (err) {
-        showToast(err.message || "Failed to toggle user status", "error");
-    }
+    user.status = suspending ? "Suspended" : "Active";
+    logAudit("Users", suspending ? "Suspended account" : "Reactivated account", `${user.name} (${user.id})`);
+    renderAdminUsers();
+    showToast(`${user.name} has been ${suspending ? "suspended" : "reactivated"}.`, suspending ? "info" : "success");
 };
 
 // =====================================================================
@@ -2571,20 +2480,14 @@ function renderStaffInventory() {
     }).join("");
 }
 
-window.staffSetCustody = async function (itemId, newPoint) {
-    const item = state.items.find(i => i.id === itemId || i.customId === itemId);
+window.staffSetCustody = function (itemId, newPoint) {
+    const item = state.items.find(i => i.id === itemId);
     if (!item || item.custodyLocation === newPoint) return;
     const from = item.custodyLocation || "Unassigned";
-    try {
-        await BackToYouAPI.items.update(item.customId || item.id, { custodyLocation: newPoint });
-        item.custodyLocation = newPoint;
-        logAudit("Inventory", `Moved item from ${from} to ${newPoint}`, `${item.id} - ${item.title}`);
-        renderAllViews();
-        showToast(`${item.title} moved to ${newPoint}.`, "success");
-        await syncFromBackend();
-    } catch (err) {
-        showToast(err.message || "Failed to update custody location", "error");
-    }
+    item.custodyLocation = newPoint;
+    logAudit("Inventory", `Moved item from ${from} to ${newPoint}`, `${item.id} - ${item.title}`);
+    renderAllViews();
+    showToast(`${item.title} moved to ${newPoint}.`, "success");
 };
 
 // ---- Direct Matching --------------------------------------------------
@@ -2750,8 +2653,8 @@ function renderStaffDisposal() {
 }
 
 // Disposal cannot be undone, so the first click asks for a second confirming click
-window.staffDisposeItem = async function (id) {
-    const item = state.disposals.find(x => x.id === id || x.disposalId === id);
+window.staffDisposeItem = function (id) {
+    const item = state.disposals.find(x => x.id === id);
     if (!item) return;
     if (state.disposeConfirmId !== id) {
         state.disposeConfirmId = id;
@@ -2759,16 +2662,10 @@ window.staffDisposeItem = async function (id) {
         return;
     }
     state.disposeConfirmId = null;
-    try {
-        await BackToYouAPI.admin.updateDisposal(item.disposalId || item.id, 'dispose');
-        item.status = "Disposed";
-        logAudit("Disposal", `Approved disposal (${(item.method || "").toLowerCase()})`, `${item.id} - ${item.itemTitle}`);
-        renderAllViews();
-        showToast(`${item.itemTitle} marked as disposed.`, "success");
-        await syncFromBackend();
-    } catch (err) {
-        showToast(err.message || "Failed to update disposal", "error");
-    }
+    item.status = "Disposed";
+    logAudit("Disposal", `Approved disposal (${item.method.toLowerCase()})`, `${item.id} - ${item.itemTitle}`);
+    renderAllViews();
+    showToast(`${item.itemTitle} marked as disposed.`, "success");
 };
 
 window.staffCancelDispose = function () {
@@ -2776,20 +2673,14 @@ window.staffCancelDispose = function () {
     renderStaffDisposal();
 };
 
-window.staffExtendHold = async function (id) {
-    const item = state.disposals.find(x => x.id === id || x.disposalId === id);
+window.staffExtendHold = function (id) {
+    const item = state.disposals.find(x => x.id === id);
     if (!item) return;
     state.disposeConfirmId = null;
-    try {
-        await BackToYouAPI.admin.updateDisposal(item.disposalId || item.id, 'extend');
-        item.status = "Hold Extended";
-        logAudit("Disposal", "Extended holding period by 30 days", `${item.id} - ${item.itemTitle}`);
-        renderAllViews();
-        showToast(`Holding period extended by 30 days for ${item.itemTitle}.`, "info");
-        await syncFromBackend();
-    } catch (err) {
-        showToast(err.message || "Failed to extend hold", "error");
-    }
+    item.status = "Hold Extended";
+    logAudit("Disposal", "Extended holding period by 30 days", `${item.id} - ${item.itemTitle}`);
+    renderAllViews();
+    showToast(`Holding period extended by 30 days for ${item.itemTitle}.`, "info");
 };
 
 // ---- Claim review window ----------------------------------------------
@@ -2998,7 +2889,7 @@ function setupFeedback() {
         if (e.target.id === "modal-feedback") closeFeedbackModal();
     });
 
-    document.getElementById("form-feedback")?.addEventListener("submit", async (e) => {
+    document.getElementById("form-feedback")?.addEventListener("submit", (e) => {
         e.preventDefault();
         document.querySelectorAll("#form-feedback .form-group-custom").forEach(g => g.classList.remove("has-error"));
 
@@ -3014,23 +2905,18 @@ function setupFeedback() {
             return;
         }
 
+        state.feedback.unshift({
+            id: `FDB-${String(Date.now()).slice(-6)}`,
+            time: new Date().toLocaleString(),
+            name: state.currentUser?.name || "Passenger",
+            email: state.currentUser?.email || "",
+            rating, category, message
+        });
+        writeStore("transit_feedback", state.feedback);
         logAudit("Feedback", "Submitted passenger feedback", `${category} • ${rating}/5 stars`);
 
-        try {
-            await BackToYouAPI.feedback.submit({
-                name: state.currentUser?.name || "Passenger",
-                email: state.currentUser?.email || "",
-                rating,
-                category,
-                message
-            });
-            await syncFromBackend();
-            closeFeedbackModal();
-            showToast("Thank you! Your feedback has been saved to the database.", "success");
-        } catch (err) {
-            closeFeedbackModal();
-            showToast("Thank you! Your feedback has been recorded.", "success");
-        }
+        closeFeedbackModal();
+        showToast("Thank you! Your feedback has been sent to the admin team.", "success");
     });
 }
 
@@ -3080,49 +2966,64 @@ function renderAdminTable() {
   `).join("");
 }
 
-window.adminApproveClaim = async function (claimId) {
-    try {
-        const res = await BackToYouAPI.claims.review(claimId, {
-            status: "Approved",
-            reviewNotes: "Ownership verified via provided proof."
-        });
+window.adminApproveClaim = function (claimId) {
+    const claim = state.claims.find(c => c.claimId === claimId);
+    if (!claim) return;
 
-        if (res.success) {
-            logAudit("Claims", "Approved claim & issued handover voucher", `${claimId}`);
-            showToast(`Claim ${claimId} Approved! Digital handover voucher generated.`, "success");
-            await syncFromBackend();
-            renderAdminTable();
-            updateSystemCounters();
-            renderAllViews();
-        }
-    } catch (err) {
-        showToast(err.message || "Failed to approve claim", "error");
+    claim.status = "Approved";
+    logAudit("Claims", "Approved claim & issued handover voucher", `${claimId} - ${claim.itemTitle}`);
+
+    // Also update corresponding item to Recovered
+    const item = state.items.find(i => i.id === claim.itemId);
+    if (item) {
+        item.status = "Recovered";
     }
+
+    state.notifications.unshift({
+        id: `notif-${Date.now()}`,
+        title: `Claim ${claimId} Approved!`,
+        body: `Authorized staff verified ownership for '${claim.itemTitle}'. Custody handover voucher issued for pickup at ${claim.pickupStation}.`,
+        time: "Just now",
+        read: false,
+        itemId: claim.itemId
+    });
+
+    renderAdminTable();
+    updateSystemCounters();
+    renderAllViews();
+    showToast(`Claim ${claimId} Approved! Digital handover voucher generated.`, "success");
 };
 
-window.adminRejectClaim = async function (claimId, reasonOverride) {
+window.adminRejectClaim = function (claimId, reasonOverride) {
     const reason = reasonOverride !== undefined
         ? reasonOverride
         : prompt("Enter specific verification rejection reason (e.g. proof does not match logged item identifiers):");
     if (reason === null) return;
 
-    try {
-        const res = await BackToYouAPI.claims.review(claimId, {
-            status: "Rejected",
-            reviewNotes: reason || "Inconclusive ownership proof provided."
-        });
+    const claim = state.claims.find(c => c.claimId === claimId);
+    if (!claim) return;
 
-        if (res.success) {
-            logAudit("Claims", "Rejected claim", `${claimId}`);
-            showToast(`Claim ${claimId} rejected and recorded in custody log.`, "info");
-            await syncFromBackend();
-            renderAdminTable();
-            updateSystemCounters();
-            renderAllViews();
-        }
-    } catch (err) {
-        showToast(err.message || "Failed to reject claim", "error");
+    claim.status = "Rejected";
+    logAudit("Claims", "Rejected claim", `${claimId} - ${claim.itemTitle}`);
+
+    const item = state.items.find(i => i.id === claim.itemId);
+    if (item) {
+        item.status = "Open";
     }
+
+    state.notifications.unshift({
+        id: `notif-${Date.now()}`,
+        title: `Claim ${claimId} Review Concluded`,
+        body: `Staff recorded reason: ${reason || 'Inconclusive ownership proof provided'}.`,
+        time: "Just now",
+        read: false,
+        itemId: claim.itemId
+    });
+
+    renderAdminTable();
+    updateSystemCounters();
+    renderAllViews();
+    showToast(`Claim ${claimId} rejected and recorded in custody log.`, "info");
 };
 
 // =====================================================================
@@ -3478,4 +3379,4 @@ function renderAllViews() {
 
     // Staff workspace
     if (state.currentUser?.role === "Staff") renderStaffViews();
-}
+}

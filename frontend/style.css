@@ -3,7 +3,7 @@
    Aesthetic Palette: Mustard Yellow, Deep Espresso/Walnut Brown, Architectural Stone Grey
    ===================================================================== */
 
-:root {
+   :root {
     /* Mustard Yellow Accents & Primaries */
     --mustard-50: #FFFDF5;
     --mustard-100: #FFF8E1;
@@ -3444,8 +3444,16 @@ body.login-view-active .main-navbar .nav-links,
 body:has(#view-login.active) .main-navbar .nav-actions,
 body.login-view-active .main-navbar .nav-actions,
 body:has(#view-login.active) .notif-drawer,
-body.login-view-active .notif-drawer {
+body.login-view-active .notif-drawer,
+body:has(#view-login.active) .top-nav-wrapper,
+body.login-view-active .top-nav-wrapper {
     display: none !important;
+}
+
+/* With the top header gone, centre the login card in the full viewport */
+body:has(#view-login.active) .login-view-wrapper,
+body.login-view-active .login-view-wrapper {
+    min-height: 100vh;
 }
 
 /* =====================================================================
@@ -5062,4 +5070,10 @@ body.is-admin-user #view-dashboard {
     #modal-admin .admin-console-body {
         padding: 18px 14px 36px;
     }
+}
+
+/* Admin only: hide the notification bell and its drawer */
+body.is-admin-user .notif-bell-btn,
+body.is-admin-user .notif-drawer {
+    display: none !important;
 }
