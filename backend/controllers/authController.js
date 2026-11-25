@@ -4,9 +4,13 @@ const AuditLog = require('../models/AuditLog');
 
 // Generate JWT Token
 const generateToken = (id) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured in .env');
+  }
+
   return jwt.sign(
     { id },
-    process.env.JWT_SECRET || 'backtoyou_default_secure_secret_2026',
+    process.env.JWT_SECRET,
     {
       expiresIn: process.env.JWT_EXPIRE || '7d',
     }
@@ -18,7 +22,7 @@ const generateToken = (id) => {
 // @access  Public
 const register = async (req, res, next) => {
   try {
-    const { name, email, password, phone, role } = req.body;
+    const { name, email, password, phone } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -37,14 +41,14 @@ const register = async (req, res, next) => {
     }
 
     // Create user (default role is Passenger unless explicitly allowed in test/admin setup)
-    const userRole = role && ['Passenger', 'Staff', 'Admin'].includes(role) ? role : 'Passenger';
+    //const userRole = role && ['Passenger', 'Staff', 'Admin'].includes(role) ? role : 'Passenger';
 
     const user = await User.create({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password,
       phone: phone ? phone.trim() : '',
-      role: userRole,
+      role: 'Passenger',
     });
 
     // Record audit log
@@ -158,6 +162,12 @@ const login = async (req, res, next) => {
 const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
+    if (!user) {
+  return res.status(404).json({
+    success: false,
+    message: 'User not found',
+  });
+}
     res.status(200).json({
       success: true,
       user: {

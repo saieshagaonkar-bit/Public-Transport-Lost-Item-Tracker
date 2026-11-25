@@ -92,14 +92,36 @@ const markAllNotificationsRead = async (req, res, next) => {
 // @desc    Update user profile
 // @route   PATCH /api/users/profile
 // @access  Private
+
 const updateProfile = async (req, res, next) => {
   try {
     const { name, phone, address } = req.body;
     const user = await User.findById(req.user._id);
 
-    if (name) user.name = name.trim();
-    if (phone !== undefined) user.phone = phone.trim();
-    if (address !== undefined) user.address = address.trim();
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    if (name !== undefined) {
+      if (typeof name !== 'string' || !name.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Name cannot be empty',
+        });
+      }
+      user.name = name.trim();
+    }
+
+    if (phone !== undefined) {
+      user.phone = String(phone).trim();
+    }
+
+    if (address !== undefined) {
+      user.address = String(address).trim();
+    }
 
     await user.save();
 
