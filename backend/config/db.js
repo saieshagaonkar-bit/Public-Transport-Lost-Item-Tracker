@@ -1,49 +1,41 @@
-const mongoose = require('mongoose');
 
-let memoryServer = null;
+const mongoose = require('mongoose');
+const dns = require('dns');
+
+// Use public DNS servers for MongoDB Atlas SRV lookup
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const connectDB = async () => {
-  if (mongoose.connection.readyState === 1) {
-    return mongoose.connection;
-  }
+  try {
+    const uri = process.env.MONGODB_URI;
 
-  const uri = process.env.MONGODB_URI;
+    if (!uri) {
+      throw new Error('MONGODB_URI is missing from the .env file');
+    }
 
-  if (uri && !uri.includes('your_mongodb_connection_string') && !uri.includes('<username>')) {
-    try {
-      const conn = await mongoose.connect(uri, {
-        serverSelectionTimeoutMS: 5000,
-      });
-      console.log(`[MongoDB] Connected to database: ${conn.connection.host}`);
-      return conn;
-    } catch (err) {
-      console.warn(`[MongoDB] Atlas/Remote connection failed: ${err.message}.`);
-      if (process.env.NODE_ENV === 'production') {
-        throw err;
-      }
-      console.log(`[MongoDB] Falling back to embedded local development database engine...`);
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 15000,
+    });
+
+    console.log(`[MongoDB] Connected: ${conn.connection.host}`);
+    return conn;
+  }  catch (error) {
+  console.error('[MongoDB] Error:', error.message);
+
+  if (error.reason && error.reason.servers) {
+    for (const [address, server] of error.reason.servers) {
+      console.log('\nServer:', address);
+      console.log('Error:', server.error?.message || 'No detailed error available');
     }
   }
 
-  // Development / Test fallback using mongodb-memory-server
-  try {
-    const { MongoMemoryServer } = require('mongodb-memory-server');
-    memoryServer = await MongoMemoryServer.create();
-    const memUri = memoryServer.getUri();
-    const conn = await mongoose.connect(memUri);
-    console.log(`[MongoDB] Connected to in-memory development database: ${memUri}`);
-    return conn;
-  } catch (err) {
-    console.error(`[MongoDB] Database initialization error: ${err.message}`);
-    throw err;
-  }
+  throw error;
+}
 };
 
 const closeDB = async () => {
   await mongoose.disconnect();
-  if (memoryServer) {
-    await memoryServer.stop();
-  }
+  console.log('[MongoDB] Disconnected');
 };
 
 module.exports = { connectDB, closeDB };
